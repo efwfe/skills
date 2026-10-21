@@ -325,7 +325,7 @@ function select(n) {
     (pre.length ? `<h3>先学(沿依赖边)</h3><ol>${pre.map(id => `<li><a data-id="${esc(id)}">${esc(id)}</a></li>`).join("")}</ol>` : "") +
     (sugg.length ? `<h3>可能相关(待你确认)</h3><ul>${sugg.map(s => { const o = s.a === n.id ? s.b : s.a;
       return `<li><a data-id="${esc(o)}">${esc(o)}</a> <span class="sugg">${esc(s.why)}</span></li>`; }).join("")}</ul>
-      <p class="sugg">写得出共同机制、区别、对两边都成立的那句话,才算同源;确认后用 /scratch:dots 写进"连接"。</p>` : "") +
+      <p class="sugg">写得出共同机制、区别、对两边都成立的那句话,才算同源;确认后用 /sc:dots 写进"连接"。</p>` : "") +
     (n.excerpt ? `<h3>内容摘录</h3><pre>${esc(n.excerpt)}</pre>` : "");
   side.querySelectorAll("a[data-id]").forEach(a => a.onclick = () => {
     const o = byId.get(a.dataset.id); select(o); view.x = -o.x * view.s; view.y = -o.y * view.s; draw();
@@ -336,7 +336,7 @@ window.addEventListener("resize", resize);
 resize();
 for (let i = 0; i < 260; i++) tick();
 alpha = 0.25; fit(); loop();
-if (!nodes.length) document.getElementById("side").innerHTML = '<p class="empty">库里还没有内容:先用 /scratch:dots 分析一个项目。</p>';
+if (!nodes.length) document.getElementById("side").innerHTML = '<p class="empty">库里还没有内容:先用 /sc:dots 分析一个项目。</p>';
 </script>
 </body>
 </html>

@@ -1,11 +1,11 @@
 ---
 name: repo
-description: Rebuild a GitHub repo from scratch to really understand it. Practice mode (default for self-study) - the user writes the code while Claude coaches with per-component labs, failing tests, oracle outputs from the original repo, tiered hints and reviews. Book mode - Claude writes a from-scratch course for readers who only know basic Python (Raschka "Build X From Scratch" style) with verified code and figures. A fit assessment routes each repo to a full rebuild, a kernel-only rebuild, or a small "baby" version. Use when the user wants to learn a repository by rebuilding it, practice implementing it, or write tutorial chapters about it. Trigger on "from scratch", "从零重建", "自己写一遍", "练习", "抽丝剥茧", "学习这个仓库", "写教程", "/scratch:repo".
+description: Rebuild a GitHub repo from scratch to really understand it. Practice mode (default for self-study) - the user writes the code while Claude coaches with per-component labs, failing tests, oracle outputs from the original repo, tiered hints and reviews. Book mode - Claude writes a from-scratch course for readers who only know basic Python (Raschka "Build X From Scratch" style) with verified code and figures. A fit assessment routes each repo to a full rebuild, a kernel-only rebuild, or a small "baby" version. Use when the user wants to learn a repository by rebuilding it, practice implementing it, or write tutorial chapters about it. Trigger on "from scratch", "从零重建", "自己写一遍", "练习", "抽丝剥茧", "学习这个仓库", "写教程", "/sc:repo".
 ---
 
-# scratch:repo — 把仓库从零重建成课程
+# sc:repo — 把仓库从零重建成课程
 
-> 路径说明:本 skill 目录是 `${CLAUDE_PLUGIN_ROOT}/skills/repo`(作为 scratch 插件安装时,该变量会被自动替换成绝对路径);手动安装时就是本 SKILL.md 所在目录(加载时给出的 Base directory)。下文的 `scripts/`、`references/`、`templates/` 都相对这个目录。
+> 路径说明:本 skill 目录是 `${CLAUDE_PLUGIN_ROOT}/skills/repo`(作为 sc 插件安装时,该变量会被自动替换成绝对路径);手动安装时就是本 SKILL.md 所在目录(加载时给出的 Base directory)。下文的 `scripts/`、`references/`、`templates/` 都相对这个目录。
 
 把一个陌生仓库,变成"从空文件夹重新长出来"的课程。方法源自 Raschka《Build a LLM From Scratch》(拆解见 `references/pedagogy.md`),泛化到任意仓库。
 
@@ -88,7 +88,7 @@ description: Rebuild a GitHub repo from scratch to really understand it. Practic
 
 ## 学习记录(有 dot 库时)
 
-如果用户有 dot 库(`$DOT_LIBRARY` 或 `~/dot-library/` 存在;**不存在就跳过,不要创建**),写一条学习记录 `projects/course-<课程名>.md`,让 `/scratch:graph` 能把这次学习画进关系图。在 `00-scope.md` 定稿后写第一版,收尾章写完后更新"核心心智模型"(取自贯通表):
+如果用户有 dot 库(`$DOT_LIBRARY` 或 `~/dot-library/` 存在;**不存在就跳过,不要创建**),写一条学习记录 `projects/course-<课程名>.md`,让 `/sc:graph` 能把这次学习画进关系图。在 `00-scope.md` 定稿后写第一版,收尾章写完后更新"核心心智模型"(取自贯通表):
 
 ```markdown
 # <标题>
@@ -105,12 +105,12 @@ description: Rebuild a GitHub repo from scratch to really understand it. Practic
 - [[<已存在的 dot 名>]]:<一句话说明关系>
 
 ## 候选 dot(未入库)
-- <名字>:<剥名后的一句话>(用 /scratch:dots 收入)
+- <名字>:<剥名后的一句话>(用 /sc:dots 收入)
 ```
 
 - `## 关联的 dot` 只链接 `index.md` 里**已经存在**的 dot,关系要具体到共同机制;找不到就留空。不确定的连接不写——宁可漏连,不可错连。
-- 候选 dot 只写文字、不加 `[[ ]]`,**不在 `dots/`、`candidates/` 里建文件**:入库要走 `/scratch:dots` 的四个测试和同源判断。
-- 写完在 dot 库里 `git add projects/course-<课程名>.md && git commit -m "scratch:repo: <标题>"`。
+- 候选 dot 只写文字、不加 `[[ ]]`,**不在 `dots/`、`candidates/` 里建文件**:入库要走 `/sc:dots` 的四个测试和同源判断。
+- 写完在 dot 库里 `git add projects/course-<课程名>.md && git commit -m "sc:repo: <标题>"`。
 
 ## 约定
 

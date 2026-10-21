@@ -255,7 +255,7 @@ KIND_LABEL = {"dot": "dot", "candidate": "候选", "archived": "归档", "projec
               "blog": "文章", "paper": "论文", "talk": "演讲", "doc": "设计文档",
               "course": "课程", "compare": "对比", "note": "笔记", "ghost": "悬挂"}
 FLAG_HINT = {
-    "可升级": "候选已有 ≥2 个例证:用 /scratch:dots 走同源判断,确认后升级",
+    "可升级": "候选已有 ≥2 个例证:用 /sc:dots 走同源判断,确认后升级",
     "半个": "缺体验面/设计面/实现面中的一面:下次分析时专门留意",
     "没落到代码": "实现面没有 path:line:只停在思想层,下次追到代码",
     "没有连接": "已确认的 dot 却和其他 dot 没有任何关系:想想它和谁同源、和谁拉扯",
@@ -310,7 +310,7 @@ def report(graph):
         out += [f"- [[{e['source']}]] × [[{e['target']}]]" for e in tensions[:10]]
         out.append("")
     if not graph["nodes"]:
-        out.append("库是空的:先用 /scratch:dots 分析一个项目。")
+        out.append("库是空的:先用 /sc:dots 分析一个项目。")
     return "\n".join(out).rstrip() + "\n"
 
 
