@@ -1,6 +1,6 @@
 ---
 name: dots
-description: 分析一个 GitHub 项目，提取其中"不变的、可迁移的思想"（dot），沉淀进用户个人的 dot 库，并发现 dot 之间的连接。当用户给出 GitHub 仓库链接或本地仓库路径，并说"帮我学习这个项目""提炼 dot""沉淀这个项目的思想""connect dots"，或要求盘点/复盘 dot 库时使用。默认互动模式；用户说"快速"时走快速模式。给两个解决同一问题的项目时可走对比模式，提炼共同不变量与张力。不用于普通的代码讲解、模块介绍或 bug 排查。
+description: Analyze a GitHub project to extract its invariant, transferable ideas ("dots"), add them to the user's personal dot library, and find connections between dots (same mechanism, tension, dependency, lineage). Interactive by default (the user guesses first); "quick" skips the questions. Compare mode puts two projects that solve the same problem side by side to find shared invariants and tensions. Also reviews the library ("review my dot library"). Use when the user gives a repo URL or local path and asks to learn from it, extract or distill its ideas, or connect the dots. Not for plain code walkthroughs or debugging. Triggers: "/sc:dots", "提炼 dot", "帮我学习这个项目", "沉淀这个项目的思想", "对比这两个项目", "盘点 dot 库", "connect dots".
 ---
 
 # sc:dots — 从项目里提炼 dot，沉淀进个人知识库

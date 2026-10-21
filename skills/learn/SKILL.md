@@ -1,6 +1,6 @@
 ---
 name: learn
-description: sc(scratch)学习插件的总入口和调度器。用户只给一个链接、一段正文、一个仓库路径或一句"我想学 X",就判断该用哪个学习 skill:文章、论文、演讲、设计文档 → sc:blog;从零重建仓库(自己动手练习或写成课程)→ sc:repo;提炼项目思想、对比两个项目、盘点 dot 库 → sc:dots;梳理学习之间的联系 → sc:graph;也能串起来跑完整的学习路线。不带参数时报告 dot 库现状并推荐下一步。当用户说"scratch""/sc:learn""帮我学这个""我该怎么学这个""学习路线"时使用。
+description: Entry point and dispatcher for the sc learning plugin. Give it a link, pasted text, a repo path, or "I want to learn X", and it routes to the right skill: articles, papers, talks and design docs to sc:blog; rebuilding a repo (hands-on practice or a written course) to sc:repo; distilling a project's ideas, comparing two projects, or reviewing the dot library to sc:dots; organizing connections to sc:graph. Can chain a full learning route, pausing between steps. With no argument, reports dot library status and suggests a next step. Triggers: "/sc:learn", "help me learn this", "帮我学这个", "我该怎么学", "学习路线".
 ---
 
 # sc:learn — 学习调度器

@@ -1,6 +1,6 @@
 ---
 name: blog
-description: 把一篇文章、论文、演讲或设计文档(RFC/ADR/PEP)从零"重新长出来":不是摘要或翻译,而是还原作者要解决的问题、一步步推出结论的思路,把原文的图表重画成自己的图,讲清背后的心智模型和设计取舍,让读者读完能自己复述、迁移、甚至自己想出来。用户只需提供链接、PDF 或粘贴的正文/文字稿。只要用户给了一篇材料并想"真正理解它"就使用,哪怕他只说"帮我讲懂这篇""这篇论文讲了什么""这个演讲的核心思想""读不懂这个 RFC"。可选互动模式:先猜再看、检验题先答。触发词:sc:blog、blog-from-scratch、从零复现这篇、抽丝剥茧、心智模型、直觉、帮我吃透这篇、讲讲背后的 intuition。
+description: Regrow an article, paper, talk or design doc (RFC/ADR/PEP) from scratch so you can rebuild the reasoning yourself: the problem the author faced, the step-by-step path to the conclusion, the mental models and design trade-offs, with the original figures reused or redrawn. Not a summary or translation. Output is a typeset HTML page; optional interactive mode (guess before reading, answer check questions first). Input: a URL, PDF, or pasted text/transcript. Use whenever the user shares such material and wants to truly understand it, even if they only say "explain this post", "what is this paper about", "I don't get this RFC". Triggers: "/sc:blog", "帮我吃透这篇", "讲懂这篇", "从零复现这篇", "抽丝剥茧", "心智模型", "背后的 intuition".
 ---
 
 # sc:blog — 把一篇文章、论文、演讲或设计文档从零重新长出来
