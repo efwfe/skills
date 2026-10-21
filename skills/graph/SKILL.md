@@ -1,6 +1,6 @@
 ---
 name: graph
-description: 把个人 dot 库(sc:dots 沉淀的 dot、候选、项目笔记,以及 sc:blog / sc:repo 留下的学习记录)画成一张可交互的关系图,并给出文字报告:枢纽、孤立节点、悬挂链接、可升级的候选、半个 dot、没落到代码的 dot、孤岛和张力。用于整理和梳理学过的东西之间的联系。当用户说"画出我的知识图谱""看看我学的东西之间的联系""梳理 dot 库""可视化学习关系""sc:graph"时使用。
+description: Draw the personal dot library (dots, candidates, project notes, and learning records from sc:blog and sc:repo) as an interactive relationship graph with a tidy-up report: hubs, islands, dangling links, promotable candidates, half dots, dots never traced to code, tensions. Also timeline replay, prerequisite paths, suggested links, and Mermaid / Obsidian Canvas export. Use to organize and review how the things you have learned connect. Triggers: "/sc:graph", "knowledge graph", "画出我的知识图谱", "梳理 dot 库", "学习之间的联系", "可视化学习关系".
 ---
 
 # sc:graph — 把学过的东西画成一张图

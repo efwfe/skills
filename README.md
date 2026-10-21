@@ -78,7 +78,7 @@ uv run python skills/graph/scripts/learning_graph.py ~/dot-library --canvas ~/do
 /plugin install sc --marketplace efwfe/skills
 ```
 
-或分两步:
+或分两步(第二步只有在第一步加过插件源后才能用,否则会报 `Marketplace "efwfe-skills" not found`):
 
 ```text
 /plugin marketplace add efwfe/skills
@@ -87,7 +87,7 @@ uv run python skills/graph/scripts/learning_graph.py ~/dot-library --canvas ~/do
 
 更新:在 `/plugin` 的 Marketplaces 页选 efwfe-skills → Update marketplace(或在那里打开自动更新)。插件不固定版本号,每次更新都取仓库最新提交。
 
-> 从旧名 `scratch` 迁移:插件改名为 `sc`(命令从 `/scratch:blog` 变成 `/sc:blog`)。先 `/plugin uninstall scratch@efwfe-skills`,更新插件源后再 `/plugin install sc@efwfe-skills`。dot 库不受影响。
+> 从旧名 `scratch` 迁移:插件改名为 `sc`(命令从 `/scratch:blog` 变成 `/sc:blog`)。先 `/plugin uninstall scratch@efwfe-skills`,再 `/plugin install sc --marketplace efwfe/skills`(会自动添加或复用插件源)。dot 库不受影响。
 
 <details><summary>不用插件,手动安装</summary>
 
@@ -189,7 +189,7 @@ uv run python skills/graph/scripts/learning_graph.py ~/dot-library --report
 /plugin install sc --marketplace efwfe/skills
 ```
 
-or in two steps: `/plugin marketplace add efwfe/skills`, then `/plugin install sc@efwfe-skills`. Update from the Marketplaces tab in `/plugin` (efwfe-skills → Update marketplace, or turn on auto-update there); the plugin is unversioned, so updates track the latest commit. Migrating from the old name: the plugin is now `sc` (`/scratch:blog` → `/sc:blog`); run `/plugin uninstall scratch@efwfe-skills`, update the marketplace, then `/plugin install sc@efwfe-skills`. Your dot library is unaffected. To install without the plugin system, symlink each folder under `skills/` into `~/.claude/skills/` (commands then lose the `sc:` prefix; the plugin install is recommended).
+or in two steps: `/plugin marketplace add efwfe/skills`, then `/plugin install sc@efwfe-skills`. Update from the Marketplaces tab in `/plugin` (efwfe-skills → Update marketplace, or turn on auto-update there); the plugin is unversioned, so updates track the latest commit. Migrating from the old name: the plugin is now `sc` (`/scratch:blog` → `/sc:blog`); run `/plugin uninstall scratch@efwfe-skills`, then `/plugin install sc --marketplace efwfe/skills` (it adds or reuses the marketplace). Your dot library is unaffected. To install without the plugin system, symlink each folder under `skills/` into `~/.claude/skills/` (commands then lose the `sc:` prefix; the plugin install is recommended).
 
 ### Requirements
 
