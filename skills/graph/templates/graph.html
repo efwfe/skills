@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>学习关系图</title>
+<style>
+:root {
+  --bg: #fbfaf7; --panel: #ffffff; --ink: #1f2328; --mute: #6b7280; --line: #e5e2da;
+  --edge: rgba(60,60,60,.28); --hl: #f5c518;
+  --k-dot: #2563eb; --k-candidate: #60a5fa; --k-archived: #9ca3af; --k-project: #059669;
+  --k-blog: #d97706; --k-course: #7c3aed; --k-note: #64748b; --k-ghost: #c2410c;
+  --e-例证: #10b981; --e-同源异形: #2563eb; --e-张力: #dc2626; --e-依赖: #7c3aed; --e-传承: #b45309; --e-关联: #9ca3af;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15171a; --panel: #1d2024; --ink: #e6e6e6; --mute: #9aa3ad; --line: #2c3036;
+    --edge: rgba(220,220,220,.22);
+    --k-dot: #60a5fa; --k-candidate: #93c5fd; --k-archived: #6b7280; --k-project: #34d399;
+    --k-blog: #fbbf24; --k-course: #a78bfa; --k-note: #94a3b8; --k-ghost: #fb923c;
+    --e-例证: #34d399; --e-同源异形: #60a5fa; --e-张力: #f87171; --e-依赖: #a78bfa; --e-传承: #f59e0b; --e-关联: #6b7280;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #15171a; --panel: #1d2024; --ink: #e6e6e6; --mute: #9aa3ad; --line: #2c3036;
+  --edge: rgba(220,220,220,.22);
+  --k-dot: #60a5fa; --k-candidate: #93c5fd; --k-archived: #6b7280; --k-project: #34d399;
+  --k-blog: #fbbf24; --k-course: #a78bfa; --k-note: #94a3b8; --k-ghost: #fb923c;
+  --e-例证: #34d399; --e-同源异形: #60a5fa; --e-张力: #f87171; --e-依赖: #a78bfa; --e-传承: #f59e0b; --e-关联: #6b7280;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
+  font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Noto Sans CJK SC", sans-serif; }
+#app { display: grid; grid-template-columns: 1fr 340px; grid-template-rows: auto 1fr; height: 100vh; }
+header { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center;
+  padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--panel); }
+header h1 { font-size: 15px; margin: 0 6px 0 0; white-space: nowrap; }
+#stats { color: var(--mute); font-size: 12px; }
+input[type=search], select { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line);
+  border-radius: 6px; padding: 4px 8px; }
+input[type=search] { width: 170px; }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.chip { font-size: 12px; border: 1px solid var(--line); border-radius: 999px; padding: 2px 9px; cursor: pointer;
+  user-select: none; display: inline-flex; align-items: center; gap: 5px; background: var(--bg); color: var(--ink); }
+.chip i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.chip.edge i { border-radius: 2px; height: 3px; width: 12px; }
+.chip.off { opacity: .35; }
+button { font: inherit; font-size: 12px; color: var(--ink); background: var(--bg); border: 1px solid var(--line);
+  border-radius: 6px; padding: 3px 9px; cursor: pointer; }
+#stage { position: relative; overflow: hidden; }
+canvas { display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; }
+#tip { position: absolute; pointer-events: none; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 6px; padding: 4px 8px; font-size: 12px; display: none; max-width: 260px; }
+aside { border-left: 1px solid var(--line); background: var(--panel); overflow: auto; padding: 14px 16px; }
+aside h2 { font-size: 16px; margin: 0 0 4px; word-break: break-all; }
+aside .meta { color: var(--mute); font-size: 12px; margin-bottom: 8px; }
+aside .one { margin: 8px 0; padding: 8px 10px; border-left: 3px solid var(--k-dot); background: var(--bg); }
+aside .flag { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 999px; margin: 0 4px 4px 0;
+  background: color-mix(in srgb, var(--k-ghost) 16%, transparent); color: var(--ink); }
+aside h3 { font-size: 13px; margin: 14px 0 4px; color: var(--mute); font-weight: 600; }
+aside ul { margin: 0; padding-left: 18px; }
+aside li a { color: var(--ink); cursor: pointer; text-decoration: underline dotted; }
+aside pre { white-space: pre-wrap; font-size: 12px; background: var(--bg); padding: 8px; border-radius: 6px;
+  max-height: 260px; overflow: auto; }
+aside code { font-size: 12px; word-break: break-all; }
+.empty { color: var(--mute); }
+@media (max-width: 760px) {
+  #app { grid-template-columns: 1fr; grid-template-rows: auto 62vh auto; height: auto; }
+  aside { border-left: 0; border-top: 1px solid var(--line); }
+  input[type=search] { width: 130px; }
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>学习关系图</h1>
+    <input type="search" id="q" placeholder="搜索节点…">
+    <select id="focus" title="只高亮有某个问题的节点">
+      <option value="">高亮:无</option>
+      <option value="可升级">可升级的候选</option>
+      <option value="半个">半个 dot</option>
+      <option value="没落到代码">没落到代码</option>
+      <option value="没有连接">没有连接的 dot</option>
+      <option value="孤立">孤立节点</option>
+      <option value="悬挂链接">悬挂链接</option>
+    </select>
+    <div class="chips" id="kinds"></div>
+    <div class="chips" id="etypes"></div>
+    <button id="fit">适配视图</button>
+    <span id="stats"></span>
+  </header>
+  <div id="stage"><canvas id="cv"></canvas><div id="tip"></div></div>
+  <aside id="side"><p class="empty">点一个节点,看它的内容和连接。<br>拖动画布平移,滚轮缩放,拖动节点调整位置;双击节点只看它的两层邻域,再双击空白处恢复。</p></aside>
+</div>
+<script>
+const DATA = /*__GRAPH_DATA__*/null || {nodes: [], edges: [], library: "", generated: ""};
+const KIND_LABEL = {dot: "dot", candidate: "候选", archived: "归档", project: "项目", blog: "文章", course: "课程", note: "笔记", ghost: "悬挂"};
+const ETYPES = ["例证", "同源异形", "张力", "依赖", "传承", "关联"];
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+const nodes = DATA.nodes.map((n, i) => ({...n, i, x: 0, y: 0, vx: 0, vy: 0}));
+const byId = new Map(nodes.map(n => [n.id, n]));
+const edges = DATA.edges.map(e => ({...e, s: byId.get(e.source), t: byId.get(e.target)})).filter(e => e.s && e.t);
+const adj = new Map(nodes.map(n => [n.id, []]));
+edges.forEach(e => { adj.get(e.s.id).push(e); adj.get(e.t.id).push(e); });
+
+// 初始位置:按类型分扇区放在圆上,收敛更快
+const kindsPresent = [...new Set(nodes.map(n => n.kind))];
+nodes.forEach((n, i) => {
+  const k = kindsPresent.indexOf(n.kind), a = (k / Math.max(1, kindsPresent.length)) * Math.PI * 2 + (i % 7) * 0.12;
+  const r = 120 + (i % 11) * 18;
+  n.x = Math.cos(a) * r; n.y = Math.sin(a) * r;
+});
+
+const hidden = {kind: new Set(), etype: new Set()};
+let query = "", focusFlag = "", selected = null, egoSet = null, hover = null;
+
+function chip(parent, label, color, cls, onToggle) {
+  const el = document.createElement("span");
+  el.className = "chip " + cls; el.innerHTML = `<i style="background:${color}"></i>${label}`;
+  el.onclick = () => { el.classList.toggle("off"); onToggle(el.classList.contains("off")); draw(); };
+  parent.appendChild(el);
+}
+kindsPresent.forEach(k => chip(document.getElementById("kinds"), `${KIND_LABEL[k] || k} ${nodes.filter(n => n.kind === k).length}`,
+  `var(--k-${k})`, "", off => off ? hidden.kind.add(k) : hidden.kind.delete(k)));
+ETYPES.filter(t => edges.some(e => e.type === t)).forEach(t => chip(document.getElementById("etypes"),
+  `${t} ${edges.filter(e => e.type === t).length}`, `var(--e-${t})`, "edge", off => off ? hidden.etype.add(t) : hidden.etype.delete(t)));
+document.getElementById("stats").textContent = `${nodes.length} 节点 · ${edges.length} 边 · ${DATA.generated}`;
+
+const visibleNode = n => !hidden.kind.has(n.kind) && (!egoSet || egoSet.has(n.id));
+const visibleEdge = e => !hidden.etype.has(e.type) && visibleNode(e.s) && visibleNode(e.t);
+const matches = n => (!query || (n.id + " " + (n.title || "") + " " + (n.one_liner || "")).toLowerCase().includes(query))
+  && (!focusFlag || (n.flags || []).includes(focusFlag));
+const radius = n => 5 + Math.min(12, Math.sqrt(n.degree || 0) * 2.6) + (n.kind === "dot" ? 2 : 0);
+
+// ---- 力导向布局 ----
+let alpha = 1;
+function tick() {
+  const vis = nodes.filter(visibleNode), k = 0.9;
+  for (let a = 0; a < vis.length; a++) {
+    const p = vis[a];
+    for (let b = a + 1; b < vis.length; b++) {
+      const q = vis[b]; let dx = p.x - q.x, dy = p.y - q.y, d2 = dx * dx + dy * dy || 0.01;
+      if (d2 > 250000) continue;
+      const f = 2600 / d2 * alpha, d = Math.sqrt(d2);
+      dx /= d; dy /= d; p.vx += dx * f; p.vy += dy * f; q.vx -= dx * f; q.vy -= dy * f;
+    }
+  }
+  edges.forEach(e => {
+    if (!visibleEdge(e)) return;
+    const dx = e.t.x - e.s.x, dy = e.t.y - e.s.y, d = Math.sqrt(dx * dx + dy * dy) || 1;
+    const want = e.type === "例证" ? 70 : 95, f = (d - want) * 0.04 * alpha;
+    e.s.vx += dx / d * f; e.s.vy += dy / d * f; e.t.vx -= dx / d * f; e.t.vy -= dy / d * f;
+  });
+  vis.forEach(n => {
+    n.vx -= n.x * 0.006 * alpha; n.vy -= n.y * 0.006 * alpha;
+    if (n === drag) { n.vx = n.vy = 0; return; }
+    n.vx *= k; n.vy *= k; n.x += Math.max(-30, Math.min(30, n.vx)); n.y += Math.max(-30, Math.min(30, n.vy));
+  });
+  alpha = Math.max(0, alpha * 0.985);
+}
+
+// ---- 绘制 ----
+const cv = document.getElementById("cv"), ctx = cv.getContext("2d"), tip = document.getElementById("tip");
+let view = {x: 0, y: 0, s: 1}, W = 0, H = 0, dpr = 1;
+function resize() {
+  const r = cv.parentElement.getBoundingClientRect(); dpr = window.devicePixelRatio || 1;
+  W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr; draw();
+}
+const toScreen = (x, y) => [(x * view.s) + view.x + W / 2, (y * view.s) + view.y + H / 2];
+const toWorld = (sx, sy) => [(sx - W / 2 - view.x) / view.s, (sy - H / 2 - view.y) / view.s];
+
+function draw() {
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+  ctx.save(); ctx.translate(W / 2 + view.x, H / 2 + view.y); ctx.scale(view.s, view.s);
+  const lit = selected ? new Set([selected.id, ...adj.get(selected.id).map(e => e.s === selected ? e.t.id : e.s.id)]) : null;
+  const anyMatch = query || focusFlag;
+  edges.forEach(e => {
+    if (!visibleEdge(e)) return;
+    const on = lit ? (e.s === selected || e.t === selected) : !anyMatch || (matches(e.s) && matches(e.t));
+    ctx.globalAlpha = on ? 0.9 : 0.12;
+    ctx.strokeStyle = e.type === "关联" ? css("--edge") : css("--e-" + e.type);
+    ctx.lineWidth = (e.type === "关联" ? 1 : 1.6) / Math.sqrt(view.s);
+    ctx.setLineDash(e.type === "张力" ? [6, 4] : e.type === "传承" ? [2, 3] : []);
+    ctx.beginPath(); ctx.moveTo(e.s.x, e.s.y); ctx.lineTo(e.t.x, e.t.y); ctx.stroke();
+    if (e.type === "依赖" || e.type === "传承") arrow(e);
+  });
+  ctx.setLineDash([]);
+  nodes.forEach(n => {
+    if (!visibleNode(n)) return;
+    const on = lit ? lit.has(n.id) : !anyMatch || matches(n), r = radius(n);
+    ctx.globalAlpha = on ? 1 : 0.15;
+    ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
+    const col = css("--k-" + n.kind);
+    if (n.kind === "ghost" || n.kind === "candidate") {
+      ctx.fillStyle = css("--bg"); ctx.fill(); ctx.strokeStyle = col; ctx.lineWidth = 2;
+      ctx.setLineDash(n.kind === "ghost" ? [3, 2] : []); ctx.stroke(); ctx.setLineDash([]);
+    } else { ctx.fillStyle = col; ctx.fill(); }
+    if (n === selected || (anyMatch && on && !lit)) {
+      ctx.strokeStyle = css("--hl"); ctx.lineWidth = 3 / view.s; ctx.beginPath(); ctx.arc(n.x, n.y, r + 3, 0, Math.PI * 2); ctx.stroke();
+    }
+    const showLabel = on && (view.s > 1.15 || n.degree >= 3 || n === hover || (lit && lit.has(n.id)) || (anyMatch && on) || nodes.length < 40);
+    if (showLabel) {
+      ctx.fillStyle = css("--ink"); ctx.font = `${12 / Math.max(.8, view.s)}px sans-serif`; ctx.textAlign = "center";
+      ctx.fillText(n.id.length > 22 ? n.id.slice(0, 21) + "…" : n.id, n.x, n.y + r + 13 / Math.max(.8, view.s));
+    }
+  });
+  ctx.restore(); ctx.globalAlpha = 1;
+}
+function arrow(e) {
+  const dx = e.t.x - e.s.x, dy = e.t.y - e.s.y, d = Math.sqrt(dx * dx + dy * dy) || 1, r = radius(e.t) + 3;
+  const x = e.t.x - dx / d * r, y = e.t.y - dy / d * r, a = Math.atan2(dy, dx), L = 8 / Math.sqrt(view.s);
+  ctx.setLineDash([]); ctx.beginPath(); ctx.moveTo(x, y);
+  ctx.lineTo(x - L * Math.cos(a - .4), y - L * Math.sin(a - .4)); ctx.lineTo(x - L * Math.cos(a + .4), y - L * Math.sin(a + .4));
+  ctx.closePath(); ctx.fillStyle = ctx.strokeStyle; ctx.fill();
+}
+
+function loop() { if (alpha > 0.004) { tick(); draw(); } requestAnimationFrame(loop); }
+
+// ---- 交互 ----
+let drag = null, pan = null, moved = false;
+function pick(sx, sy) {
+  const [x, y] = toWorld(sx, sy); let best = null, bd = Infinity;
+  nodes.forEach(n => { if (!visibleNode(n)) return; const d = Math.hypot(n.x - x, n.y - y); if (d < radius(n) + 5 / view.s && d < bd) { bd = d; best = n; } });
+  return best;
+}
+const pos = ev => { const r = cv.getBoundingClientRect(); return [ev.clientX - r.left, ev.clientY - r.top]; };
+cv.addEventListener("pointerdown", ev => {
+  cv.setPointerCapture(ev.pointerId); const [sx, sy] = pos(ev); moved = false;
+  drag = pick(sx, sy); if (!drag) pan = {sx, sy, x: view.x, y: view.y}; cv.style.cursor = "grabbing";
+});
+cv.addEventListener("pointermove", ev => {
+  const [sx, sy] = pos(ev);
+  if (drag) { [drag.x, drag.y] = toWorld(sx, sy); moved = true; alpha = Math.max(alpha, 0.3); draw(); return; }
+  if (pan) { view.x = pan.x + sx - pan.sx; view.y = pan.y + sy - pan.sy; moved = true; draw(); return; }
+  const h = pick(sx, sy);
+  if (h !== hover) { hover = h; draw(); }
+  if (h) { tip.style.display = "block"; tip.style.left = (sx + 12) + "px"; tip.style.top = (sy + 12) + "px";
+    tip.textContent = `${h.title || h.id}(${KIND_LABEL[h.kind] || h.kind})${h.one_liner ? ":" + h.one_liner : ""}`; }
+  else tip.style.display = "none";
+});
+cv.addEventListener("pointerup", ev => {
+  const [sx, sy] = pos(ev);
+  if (!moved) { const n = pick(sx, sy); select(n); }
+  drag = null; pan = null; cv.style.cursor = "grab";
+});
+cv.addEventListener("dblclick", ev => {
+  const n = pick(...pos(ev));
+  if (!n) { egoSet = null; } else {
+    egoSet = new Set([n.id]);
+    for (let hop = 0; hop < 2; hop++) [...egoSet].forEach(id => adj.get(id).forEach(e => { egoSet.add(e.s.id); egoSet.add(e.t.id); }));
+    select(n);
+  }
+  alpha = 0.6; draw();
+});
+cv.addEventListener("wheel", ev => {
+  ev.preventDefault(); const [sx, sy] = pos(ev), [wx, wy] = toWorld(sx, sy);
+  view.s = Math.max(0.2, Math.min(4, view.s * Math.exp(-ev.deltaY * 0.0015)));
+  view.x = sx - W / 2 - wx * view.s; view.y = sy - H / 2 - wy * view.s; draw();
+}, {passive: false});
+
+function fit() {
+  const vis = nodes.filter(visibleNode); if (!vis.length) return;
+  const xs = vis.map(n => n.x), ys = vis.map(n => n.y);
+  const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
+  view.s = Math.max(0.2, Math.min(2, Math.min(W / (x1 - x0 + 120), H / (y1 - y0 + 120))));
+  view.x = -(x0 + x1) / 2 * view.s; view.y = -(y0 + y1) / 2 * view.s; draw();
+}
+document.getElementById("fit").onclick = fit;
+document.getElementById("q").oninput = ev => { query = ev.target.value.trim().toLowerCase(); draw(); };
+document.getElementById("focus").onchange = ev => { focusFlag = ev.target.value; draw(); };
+
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+function select(n) {
+  selected = n; draw();
+  const side = document.getElementById("side");
+  if (!n) { side.innerHTML = '<p class="empty">点一个节点,看它的内容和连接。</p>'; return; }
+  const meta = [KIND_LABEL[n.kind] || n.kind, n["状态"], n["完整度"],
+    n.examples != null ? `例证 ${n.examples}` : "", `连接 ${n.degree || 0}`, n["分析日期"] || n["日期"]].filter(Boolean).join(" · ");
+  const groups = {};
+  adj.get(n.id).forEach(e => {
+    const other = e.s === n ? e.t : e.s, dir = (e.type === "依赖" || e.type === "传承") ? (e.s === n ? " →" : " ←") : "";
+    (groups[e.type + dir] ||= []).push(other);
+  });
+  const nb = Object.entries(groups).map(([t, list]) => `<h3>${esc(t)}(${list.length})</h3><ul>` +
+    list.map(o => `<li><a data-id="${esc(o.id)}">${esc(o.title || o.id)}</a> <span class="meta">${esc(KIND_LABEL[o.kind] || o.kind)}</span></li>`).join("") + "</ul>").join("");
+  side.innerHTML = `<h2>${esc(n.title || n.id)}</h2><div class="meta">${esc(meta)}</div>` +
+    (n.one_liner ? `<div class="one">${esc(n.one_liner)}</div>` : "") +
+    (n.flags || []).map(f => `<span class="flag">${esc(f)}</span>`).join("") +
+    (n.path ? `<h3>文件</h3><code>${esc(n.path)}</code>` : "") +
+    (n["来源"] || n["链接"] ? `<h3>来源</h3><code>${esc(n["来源"] || n["链接"])}</code>` : "") +
+    (nb || '<h3>连接</h3><p class="empty">还没有连接。它和库里哪个想法同源、和谁拉扯?</p>') +
+    (n.excerpt ? `<h3>内容摘录</h3><pre>${esc(n.excerpt)}</pre>` : "");
+  side.querySelectorAll("a[data-id]").forEach(a => a.onclick = () => {
+    const o = byId.get(a.dataset.id); select(o); view.x = -o.x * view.s; view.y = -o.y * view.s; draw();
+  });
+}
+
+window.addEventListener("resize", resize);
+resize();
+for (let i = 0; i < 260; i++) tick();
+alpha = 0.25; fit(); loop();
+if (!nodes.length) document.getElementById("side").innerHTML = '<p class="empty">库里还没有内容:先用 /scratch:dots 分析一个项目。</p>';
+</script>
+</body>
+</html>

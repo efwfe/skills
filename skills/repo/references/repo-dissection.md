@@ -26,7 +26,7 @@
 ## 阶段 1 — 地图(`scripts/repo_map.py`)
 
 ```bash
-uv run python skills/repo-from-scratch/scripts/repo_map.py <repo_dir>
+uv run python <本 skill 目录>/scripts/repo_map.py <repo_dir>   # 目录见 SKILL.md 的路径说明
 ```
 
 输出入口、被引用最多的文件、最大文件、import 分层(L0 = 叶子)。据此判定:

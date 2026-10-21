@@ -1,15 +1,15 @@
 ---
-name: blog-from-scratch
-description: 把一篇博客/文章从零"重新长出来":不是摘要或翻译,而是还原作者要解决的问题、一步步推出结论的思路,把原文的图表重画成自己的图,讲清文章背后的心智模型和直觉概念,让读者读完能自己复述、迁移、甚至自己想出来。用户只需提供博客链接或粘贴正文。只要用户给了一篇博客/文章/技术帖并想"真正理解它",就使用本 skill,哪怕他只说"帮我讲懂这篇""这篇讲了什么""解释一下背后的思想""学习这篇文章""读不懂这篇"。触发词:blog-from-scratch、从零复现这篇博客、抽丝剥茧、心智模型、直觉、帮我吃透这篇文章、讲讲背后的 intuition。
+name: blog
+description: 把一篇博客/文章从零"重新长出来":不是摘要或翻译,而是还原作者要解决的问题、一步步推出结论的思路,把原文的图表重画成自己的图,讲清文章背后的心智模型和直觉概念,让读者读完能自己复述、迁移、甚至自己想出来。用户只需提供博客链接或粘贴正文。只要用户给了一篇博客/文章/技术帖并想"真正理解它",就使用本 skill,哪怕他只说"帮我讲懂这篇""这篇讲了什么""解释一下背后的思想""学习这篇文章""读不懂这篇"。触发词:scratch:blog、blog-from-scratch、从零复现这篇博客、抽丝剥茧、心智模型、直觉、帮我吃透这篇文章、讲讲背后的 intuition。
 ---
 
-# blog-from-scratch
+# scratch:blog — 把一篇文章从零重新长出来
 
 输入一篇博客(链接或正文),输出一页排版好的 HTML:**读者读完能"自己想出来"的重写**——还原问题 → 还原推理(连同原文的图) → 提炼心智模型 → 四层贯通、挂进已有知识 → 给出检验。
 
 好的博客读完像"哦原来如此";读者两天后却说不出为什么。这个 skill 补的就是这一步:把作者脑中那条"为什么会这么想"的路,摊开成读者能走的台阶。
 
-> 路径说明:`scripts/`、`templates/`、`references/` 相对本 SKILL.md 所在目录;调用脚本时用绝对路径,例如 `uv run --with markdown python ~/.claude/skills/blog-from-scratch/scripts/build_html.py`。
+> 路径说明:本 skill 目录是 `${CLAUDE_PLUGIN_ROOT}/skills/blog`(作为 scratch 插件安装时,该变量会被自动替换成绝对路径);手动安装时就是本 SKILL.md 所在目录(加载时给出的 Base directory)。下文的 `scripts/`、`references/`、`templates/` 都相对这个目录。
 
 ## 它不是什么
 
@@ -37,7 +37,7 @@ description: 把一篇博客/文章从零"重新长出来":不是摘要或翻译
 | 5 | 设计台阶 | 决定重建顺序:从读者已有的世界出发,每一步只引入一个新东西(`references/rebuild.md`);图清单里的图按需要挂到台阶上 | 台阶大纲 |
 | 6 | 起草 | 按 `templates/article.md` 写成 Markdown,图写成独立的 `figures/*.svg` 并用图语法引用 | `<slug>.md` + `figures/` |
 | 7 | 核验 | 对照原文逐条检查忠实度;有代码/数字/公式就**真的跑/算一遍**;**图里的每个数字和标签对照原图复核**;能数的事实(图数、步数)真数一遍 | 核验通过 |
-| 8 | 出页 | `uv run --with markdown python scripts/build_html.py <slug>.md --embed-images`,再用 Chrome 无头截图检查(见下) | `<slug>.html` |
+| 8 | 出页 | `uv run --with markdown python ${CLAUDE_PLUGIN_ROOT}/skills/blog/scripts/build_html.py <slug>.md --embed-images`,再用 Chrome 无头截图检查(见下) | `<slug>.html` |
 | 9 | 读者自测 | 自问:没读过原文的人能否复述核心论证、能否回答文末检验题?每一段能否脱离上下文读通?能否从任一个细节(一行代码、一个数字、一张图)说回它服务的思想? | 修订 |
 
 步骤 2、3、4 是质量的来源,别跳过直接开写——直接写出来的东西往往只是原文的缩写。
@@ -77,7 +77,34 @@ Markdown 的写法见 `templates/article.md`;图怎么选、怎么画见 `refere
 
 写完在对话里只给:文件路径、一两句话说这篇的核心心智模型、以及核验中发现的任何问题——不要把整篇文章再贴一遍。
 
-如果用户在用 `connect-dots` 维护 dot 库(存在 `$DOT_LIBRARY` 或 `~/dot-library/`),再附一行:本文里通过"剥名测试"的 1–2 个候选 dot 的名字和一句话,提示可以用 connect-dots 收进库;**不要自己写进 dot 库**,入库与否由用户决定。
+
+### 学习记录(有 dot 库时)
+
+如果用户有 dot 库(`$DOT_LIBRARY` 或 `~/dot-library/` 存在;**不存在就跳过,不要创建**),写一条学习记录 `projects/blog-<slug>.md`,让 `/scratch:graph` 能把这次学习画进关系图:
+
+```markdown
+# <标题>
+
+- 类型:blog
+- 来源:<原始链接>
+- 产物:<本地路径>
+- 日期:YYYY-MM-DD
+
+## 核心心智模型
+- <一句话>
+
+## 关联的 dot
+- [[<已存在的 dot 名>]]:<一句话说明关系>
+
+## 候选 dot(未入库)
+- <名字>:<剥名后的一句话>(用 /scratch:dots 收入)
+```
+
+- `## 关联的 dot` 只链接 `index.md` 里**已经存在**的 dot,关系要具体到共同机制;找不到就留空。不确定的连接不写——宁可漏连,不可错连。
+- 候选 dot 只写文字、不加 `[[ ]]`,**不在 `dots/`、`candidates/` 里建文件**:入库要走 `/scratch:dots` 的四个测试和同源判断。
+- 写完在 dot 库里 `git add projects/blog-<slug>.md && git commit -m "scratch:blog: <标题>"`。
+
+有学习记录时,回复里再加一行:记录的路径,以及候选 dot 的名字(提示可以用 `/scratch:dots` 收进库、用 `/scratch:graph` 看它挂在哪)。
 
 篇幅跟随原文的信息量,不是原文长度:一篇 800 字的观点文可能只需要一个模型、一页纸;一篇 8000 字的技术长文可能需要多个台阶。宁可短而清楚。
 
