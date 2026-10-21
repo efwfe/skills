@@ -9,7 +9,8 @@
   --bg: #fbfaf7; --panel: #ffffff; --ink: #1f2328; --mute: #6b7280; --line: #e5e2da;
   --edge: rgba(60,60,60,.28); --hl: #f5c518;
   --k-dot: #2563eb; --k-candidate: #60a5fa; --k-archived: #9ca3af; --k-project: #059669;
-  --k-blog: #d97706; --k-course: #7c3aed; --k-note: #64748b; --k-ghost: #c2410c;
+  --k-blog: #d97706; --k-paper: #db2777; --k-talk: #0891b2; --k-doc: #65a30d;
+  --k-course: #7c3aed; --k-compare: #0f766e; --k-note: #64748b; --k-ghost: #c2410c;
   --e-例证: #10b981; --e-同源异形: #2563eb; --e-张力: #dc2626; --e-依赖: #7c3aed; --e-传承: #b45309; --e-关联: #9ca3af;
 }
 @media (prefers-color-scheme: dark) {
@@ -17,7 +18,8 @@
     --bg: #15171a; --panel: #1d2024; --ink: #e6e6e6; --mute: #9aa3ad; --line: #2c3036;
     --edge: rgba(220,220,220,.22);
     --k-dot: #60a5fa; --k-candidate: #93c5fd; --k-archived: #6b7280; --k-project: #34d399;
-    --k-blog: #fbbf24; --k-course: #a78bfa; --k-note: #94a3b8; --k-ghost: #fb923c;
+    --k-blog: #fbbf24; --k-paper: #f472b6; --k-talk: #22d3ee; --k-doc: #a3e635;
+    --k-course: #a78bfa; --k-compare: #2dd4bf; --k-note: #94a3b8; --k-ghost: #fb923c;
     --e-例证: #34d399; --e-同源异形: #60a5fa; --e-张力: #f87171; --e-依赖: #a78bfa; --e-传承: #f59e0b; --e-关联: #6b7280;
   }
 }
@@ -25,7 +27,8 @@
   --bg: #15171a; --panel: #1d2024; --ink: #e6e6e6; --mute: #9aa3ad; --line: #2c3036;
   --edge: rgba(220,220,220,.22);
   --k-dot: #60a5fa; --k-candidate: #93c5fd; --k-archived: #6b7280; --k-project: #34d399;
-  --k-blog: #fbbf24; --k-course: #a78bfa; --k-note: #94a3b8; --k-ghost: #fb923c;
+  --k-blog: #fbbf24; --k-paper: #f472b6; --k-talk: #22d3ee; --k-doc: #a3e635;
+  --k-course: #a78bfa; --k-compare: #2dd4bf; --k-note: #94a3b8; --k-ghost: #fb923c;
   --e-例证: #34d399; --e-同源异形: #60a5fa; --e-张力: #f87171; --e-依赖: #a78bfa; --e-传承: #f59e0b; --e-关联: #6b7280;
 }
 * { box-sizing: border-box; }
@@ -36,6 +39,9 @@ header { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px 14px; ali
   padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--panel); }
 header h1 { font-size: 15px; margin: 0 6px 0 0; white-space: nowrap; }
 #stats { color: var(--mute); font-size: 12px; }
+#timeline { display: none; align-items: center; gap: 6px; font-size: 12px; color: var(--mute); }
+#timeline input { width: 140px; }
+aside .sugg { color: var(--mute); font-size: 12px; }
 input[type=search], select { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line);
   border-radius: 6px; padding: 4px 8px; }
 input[type=search] { width: 170px; }
@@ -58,7 +64,7 @@ aside .one { margin: 8px 0; padding: 8px 10px; border-left: 3px solid var(--k-do
 aside .flag { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 999px; margin: 0 4px 4px 0;
   background: color-mix(in srgb, var(--k-ghost) 16%, transparent); color: var(--ink); }
 aside h3 { font-size: 13px; margin: 14px 0 4px; color: var(--mute); font-weight: 600; }
-aside ul { margin: 0; padding-left: 18px; }
+aside ul, aside ol { margin: 0; padding-left: 18px; }
 aside li a { color: var(--ink); cursor: pointer; text-decoration: underline dotted; }
 aside pre { white-space: pre-wrap; font-size: 12px; background: var(--bg); padding: 8px; border-radius: 6px;
   max-height: 260px; overflow: auto; }
@@ -87,6 +93,7 @@ aside code { font-size: 12px; word-break: break-all; }
     </select>
     <div class="chips" id="kinds"></div>
     <div class="chips" id="etypes"></div>
+    <label id="timeline" title="只显示这一天之前记录的节点(没有日期的节点一直显示)">截至 <input type="range" id="tl"> <span id="tlv"></span></label>
     <button id="fit">适配视图</button>
     <span id="stats"></span>
   </header>
@@ -95,7 +102,8 @@ aside code { font-size: 12px; word-break: break-all; }
 </div>
 <script>
 const DATA = /*__GRAPH_DATA__*/null || {nodes: [], edges: [], library: "", generated: ""};
-const KIND_LABEL = {dot: "dot", candidate: "候选", archived: "归档", project: "项目", blog: "文章", course: "课程", note: "笔记", ghost: "悬挂"};
+const KIND_LABEL = {dot: "dot", candidate: "候选", archived: "归档", project: "项目", blog: "文章", paper: "论文", talk: "演讲",
+  doc: "设计文档", course: "课程", compare: "对比", note: "笔记", ghost: "悬挂"};
 const ETYPES = ["例证", "同源异形", "张力", "依赖", "传承", "关联"];
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 
@@ -128,7 +136,19 @@ ETYPES.filter(t => edges.some(e => e.type === t)).forEach(t => chip(document.get
   `${t} ${edges.filter(e => e.type === t).length}`, `var(--e-${t})`, "edge", off => off ? hidden.etype.add(t) : hidden.etype.delete(t)));
 document.getElementById("stats").textContent = `${nodes.length} 节点 · ${edges.length} 边 · ${DATA.generated}`;
 
-const visibleNode = n => !hidden.kind.has(n.kind) && (!egoSet || egoSet.has(n.id));
+// 时间轴:只显示截至某天记录的节点,看这张网是怎么长出来的
+const dates = [...new Set(nodes.map(n => n.date).filter(Boolean))].sort();
+let cutoff = null;
+if (dates.length > 1) {
+  const tl = document.getElementById("tl"), tlv = document.getElementById("tlv");
+  document.getElementById("timeline").style.display = "inline-flex";
+  tl.min = 0; tl.max = dates.length - 1; tl.value = dates.length - 1; tlv.textContent = "全部";
+  tl.oninput = () => {
+    const i = +tl.value; cutoff = i === dates.length - 1 ? null : dates[i];
+    tlv.textContent = cutoff || "全部"; alpha = Math.max(alpha, 0.3); draw();
+  };
+}
+const visibleNode = n => !hidden.kind.has(n.kind) && (!egoSet || egoSet.has(n.id)) && (!cutoff || !n.date || n.date <= cutoff);
 const visibleEdge = e => !hidden.etype.has(e.type) && visibleNode(e.s) && visibleNode(e.t);
 const matches = n => (!query || (n.id + " " + (n.title || "") + " " + (n.one_liner || "")).toLowerCase().includes(query))
   && (!focusFlag || (n.flags || []).includes(focusFlag));
@@ -272,12 +292,23 @@ document.getElementById("q").oninput = ev => { query = ev.target.value.trim().to
 document.getElementById("focus").onchange = ev => { focusFlag = ev.target.value; draw(); };
 
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+function prereqs(id) {
+  const order = [], state = {};
+  const visit = x => {
+    if (state[x]) return; state[x] = 1;
+    adj.get(x).filter(e => e.type === "依赖" && e.s.id === x).forEach(e => visit(e.t.id));
+    order.push(x);
+  };
+  visit(id); return order.slice(0, -1);
+}
+const SUGG = DATA.suggestions || [];
 function select(n) {
   selected = n; draw();
   const side = document.getElementById("side");
   if (!n) { side.innerHTML = '<p class="empty">点一个节点,看它的内容和连接。</p>'; return; }
   const meta = [KIND_LABEL[n.kind] || n.kind, n["状态"], n["完整度"],
     n.examples != null ? `例证 ${n.examples}` : "", `连接 ${n.degree || 0}`, n["分析日期"] || n["日期"]].filter(Boolean).join(" · ");
+  const pre = prereqs(n.id), sugg = SUGG.filter(s => s.a === n.id || s.b === n.id);
   const groups = {};
   adj.get(n.id).forEach(e => {
     const other = e.s === n ? e.t : e.s, dir = (e.type === "依赖" || e.type === "传承") ? (e.s === n ? " →" : " ←") : "";
@@ -291,6 +322,10 @@ function select(n) {
     (n.path ? `<h3>文件</h3><code>${esc(n.path)}</code>` : "") +
     (n["来源"] || n["链接"] ? `<h3>来源</h3><code>${esc(n["来源"] || n["链接"])}</code>` : "") +
     (nb || '<h3>连接</h3><p class="empty">还没有连接。它和库里哪个想法同源、和谁拉扯?</p>') +
+    (pre.length ? `<h3>先学(沿依赖边)</h3><ol>${pre.map(id => `<li><a data-id="${esc(id)}">${esc(id)}</a></li>`).join("")}</ol>` : "") +
+    (sugg.length ? `<h3>可能相关(待你确认)</h3><ul>${sugg.map(s => { const o = s.a === n.id ? s.b : s.a;
+      return `<li><a data-id="${esc(o)}">${esc(o)}</a> <span class="sugg">${esc(s.why)}</span></li>`; }).join("")}</ul>
+      <p class="sugg">写得出共同机制、区别、对两边都成立的那句话,才算同源;确认后用 /scratch:dots 写进"连接"。</p>` : "") +
     (n.excerpt ? `<h3>内容摘录</h3><pre>${esc(n.excerpt)}</pre>` : "");
   side.querySelectorAll("a[data-id]").forEach(a => a.onclick = () => {
     const o = byId.get(a.dataset.id); select(o); view.x = -o.x * view.s; view.y = -o.y * view.s; draw();

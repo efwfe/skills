@@ -1,6 +1,6 @@
 ---
 name: learn
-description: scratch 插件的总入口和调度器。用户只给一个链接、一段正文、一个仓库路径或一句"我想学 X",就判断该用哪个学习 skill:文章 → scratch:blog;从零重建仓库 → scratch:repo;提炼项目思想、盘点 dot 库 → scratch:dots;梳理学习之间的联系 → scratch:graph;也能串起来跑完整的学习路线。不带参数时报告 dot 库现状并推荐下一步。当用户说"scratch""/scratch:learn""帮我学这个""我该怎么学这个""学习路线"时使用。
+description: scratch 插件的总入口和调度器。用户只给一个链接、一段正文、一个仓库路径或一句"我想学 X",就判断该用哪个学习 skill:文章、论文、演讲、设计文档 → scratch:blog;从零重建仓库(自己动手练习或写成课程)→ scratch:repo;提炼项目思想、对比两个项目、盘点 dot 库 → scratch:dots;梳理学习之间的联系 → scratch:graph;也能串起来跑完整的学习路线。不带参数时报告 dot 库现状并推荐下一步。当用户说"scratch""/scratch:learn""帮我学这个""我该怎么学这个""学习路线"时使用。
 ---
 
 # scratch:learn — 学习调度器
@@ -9,10 +9,10 @@ scratch 插件有四个学习 skill,共用一套"四层贯通"框架(思想 / �
 
 | 命令 | 输入 | 产出 | 大致耗时 |
 |---|---|---|---|
-| `/scratch:blog` | 文章链接或正文 | 一页"从零重建"的 HTML | 一篇文章 |
-| `/scratch:repo` | 仓库 | 从零构建的课程(章节、配图、可验证代码) | 长,按章推进 |
-| `/scratch:dots` | 仓库;或"盘点 dot 库" | dot 库的变化(新候选、强化、升级、连接) | 一个项目 |
-| `/scratch:graph` | dot 库 | 可交互关系图 + 梳理报告 | 几分钟 |
+| `/scratch:blog` | 文章、论文、演讲、设计文档(链接、PDF 或正文) | 一页"从零重建"的 HTML;可选互动模式(先猜再看) | 一篇材料 |
+| `/scratch:repo` | 仓库 | **练习模式**:你写代码,Claude 出题、给提示、评审;**出书模式**:Claude 写成课程 | 长,按组件推进 |
+| `/scratch:dots` | 仓库;两个仓库(对比);或"盘点 dot 库" | dot 库的变化(新候选、强化、升级、张力) | 一个项目 |
+| `/scratch:graph` | dot 库 | 可交互关系图 + 梳理报告、先学路线、可能相关的建议、Mermaid/Canvas 导出 | 几分钟 |
 
 本 skill 只做调度:判断用哪个、按什么顺序,然后用 Skill 工具调用对应的 skill(名字写全,如 `scratch:blog`),把用户的原始输入原样传过去。具体怎么做,由被调用的 skill 决定。
 
@@ -22,11 +22,14 @@ scratch 插件有四个学习 skill,共用一套"四层贯通"框架(思想 / �
 
 1. **没有参数** → 状态模式(第三节)。
 2. **明确点名**(用户说了 blog / repo / dots / graph,或"盘点""复盘""画图""关系图") → 直接调用对应 skill。
-3. **文章**:非代码托管站点的链接,或一段粘贴的文章正文 → `scratch:blog`。
+3. **文章类材料**:非代码托管站点的链接、论文(arXiv、PDF)、演讲视频、RFC/ADR/PEP 等设计文档,或一段粘贴的正文/文字稿 → `scratch:blog`。用户说了"考我""练习""带我读"时,告诉它走互动模式。
 4. **仓库**(GitHub/GitLab 链接或本地仓库路径):
-   - 说了"从零""重建""写教程""写课程""抽丝剥茧" → `scratch:repo`;
+   - **两个仓库**,或说了"对比""比较""区别" → `scratch:dots` 的对比模式;
+   - 说了"自己写""练习""动手""带我做" → `scratch:repo` 的练习模式;
+   - 说了"写教程""写课程""写成文章" → `scratch:repo` 的出书模式;
+   - 说了"从零""重建""抽丝剥茧"但没说谁写 → `scratch:repo`,由它问练习还是出书;
    - 说了"提炼""思想""dot""沉淀""值得学什么" → `scratch:dots`;
-   - 没说意图 → 用一个问题让用户选(AskUserQuestion),选项:**提炼思想**(`scratch:dots`,快,产出 dot)/ **从零重建**(`scratch:repo`,慢,产出课程)/ **完整路线**(第二节)。推荐项放第一个:仓库大、用户没时间 → 提炼思想;小而核心清楚 → 从零重建。
+   - 没说意图 → 用一个问题让用户选(AskUserQuestion),选项:**提炼思想**(`scratch:dots`,快,产出 dot)/ **动手重建**(`scratch:repo` 练习模式,慢,你写代码)/ **写成课程**(`scratch:repo` 出书模式)/ **完整路线**(第二节)。推荐项放第一个:仓库大、用户没时间 → 提炼思想;小而核心清楚 → 动手重建。
 5. **一个主题而不是材料**("我想学 Raft")→ 不要凭记忆讲课。先问用户手里有没有想读的文章或仓库;没有就推荐 1–2 篇原始文章和 1 个小而经典的实现(说明为什么选它们),让用户挑,再按 3、4 路由。
 6. 都不像 → 用一句话说明四个命令各做什么,问用户想要哪个。
 
@@ -34,9 +37,10 @@ scratch 插件有四个学习 skill,共用一套"四层贯通"框架(思想 / �
 
 用户要"完整学一遍"时,按顺序串起来,**每一步结束都停下来,告诉用户这一步的产出和下一步做什么,等用户说继续**——每一步都很长,不要一口气跑完:
 
-- **仓库**:`scratch:dots`(先抓核心赌注和 dot,半小时级)→ `scratch:repo`(按 dots 找到的最小内核定黄金路径,从零重建)→ `scratch:graph`(把新 dot 挂进已有知识)。
+- **仓库**:`scratch:dots`(先抓核心赌注和 dot,半小时级)→ `scratch:repo` 练习模式(按 dots 找到的最小内核定黄金路径,你亲手重建)→ `scratch:graph`(把新 dot 挂进已有知识)。
+- **一个问题的两种做法**:`scratch:dots` 对比模式 → 对其中更小的那个走 `scratch:repo` 练习模式 → `scratch:graph`。
 - **文章**:`scratch:blog` → 如果文章里有通过剥名测试的候选 dot,问用户要不要用 `scratch:dots` 收进库 → `scratch:graph`。
-- **一个主题**:先读一两篇原始文章(`scratch:blog`)建立直觉,再挑一个小实现(`scratch:repo`),最后 `scratch:dots` + `scratch:graph`。
+- **一个主题**:先读一两篇原始文章或论文(`scratch:blog`)建立直觉,再挑一个小实现动手重建(`scratch:repo` 练习模式),最后 `scratch:dots` + `scratch:graph`。用户点名要学某个已经在库里的 dot 时,先跑 `learning_graph.py <dot库> --no-html --path <dot>` 看前置路线,从还没学的前置开始。
 
 前一步的产物是后一步的输入:dots 的"最小内核阅读路线"给 repo 定黄金路径;blog 的心智模型和 repo 的贯通表给 dots 当参照(例证仍然只认原始出处)。
 

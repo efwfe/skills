@@ -69,6 +69,65 @@ class TestBuildGraph(unittest.TestCase):
         self.assertNotIn("/*__GRAPH_DATA__*/null", html)
         self.assertNotIn("</script><b>", html)
 
+    def test_record_prefix_kinds_and_dates(self):
+        self.assertEqual(self.nodes["paper-merkle"]["kind"], "paper")
+        self.assertEqual(self.nodes["append-only-log"]["date"], "2026-09-01")
+        self.assertEqual(self.nodes["paper-merkle"]["date"], "2026-08-20")
+        self.assertIn("增长", lg.report(self.g))
+
+    def test_compare_note_is_not_an_example_source(self):
+        self.assertEqual(self.nodes["compare-jj-vs-git"]["kind"], "compare")
+        self.assertTrue(edge(self.g, "compare-jj-vs-git", "content-addressing", "关联"))
+        self.assertEqual(self.nodes["content-addressing"]["examples"], 2)   # 对比笔记不计入例证
+
+    def test_prerequisites_follow_dependency_edges(self):
+        order, cycle = lg.prerequisites(self.g, "append-only-log")
+        self.assertEqual(order, ["hashing", "content-addressing", "append-only-log"])
+        self.assertEqual(cycle, [])
+
+    def test_prerequisites_detect_cycle(self):
+        g = {"nodes": [], "edges": [{"source": "a", "target": "b", "type": "依赖"},
+                                    {"source": "b", "target": "a", "type": "依赖"}]}
+        _, cycle = lg.prerequisites(g, "a")
+        self.assertEqual(cycle, ["a", "b"])
+
+    def test_suggest_shared_examples_but_not_linked_pairs(self):
+        pairs = {frozenset((s["a"], s["b"])): s for s in lg.suggest(self.g)}
+        hit = pairs.get(frozenset(("compaction", "content-addressing")))
+        self.assertIsNotNone(hit)
+        self.assertIn("jj-vcs-jj", hit["why"])
+        self.assertNotIn(frozenset(("append-only-log", "compaction")), pairs)   # 已经连上的不再建议
+
+    def test_mermaid_export(self):
+        text = lg.to_mermaid(self.g)
+        self.assertTrue(text.startswith("```mermaid\nflowchart LR"))
+        self.assertIn("-->|依赖|", text)
+        self.assertIn("-.-|张力|", text)
+
+    def test_canvas_export(self):
+        c = lg.to_canvas(self.g)
+        ids = {n["id"] for n in c["nodes"]}
+        self.assertEqual(ids, set(self.nodes))
+        dot = next(n for n in c["nodes"] if n["id"] == "append-only-log")
+        self.assertEqual((dot["type"], dot["file"]), ("file", "dots/append-only-log.md"))
+        ghost = next(n for n in c["nodes"] if n["id"] == "event-sourcing")
+        self.assertEqual(ghost["type"], "text")
+        self.assertTrue(all(e["fromNode"] in ids and e["toNode"] in ids for e in c["edges"]))
+
+    def test_cli_runs_all_outputs(self):
+        import tempfile, io
+        from contextlib import redirect_stdout
+        d = Path(tempfile.mkdtemp())
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            code = lg.main([str(LIB), "--out", str(d / "g.html"), "--mermaid", str(d / "g.md"),
+                            "--canvas", str(d / "g.canvas"), "--suggest", "--path", "append-only-log"])
+        self.assertEqual(code, 0)
+        self.assertIn("可能相关", buf.getvalue())
+        self.assertIn("1. [[hashing]]", buf.getvalue())
+        for f in ("g.html", "g.md", "g.canvas"):
+            self.assertTrue((d / f).stat().st_size > 0)
+
     def test_wikilink_alias_and_heading(self):
         self.assertEqual(lg.LINK.findall("见 [[a-b|别名]] 与 [[c#小节]]"), ["a-b", "c"])
 
