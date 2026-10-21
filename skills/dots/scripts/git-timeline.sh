@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # 用法: bash git-timeline.sh <仓库路径> [子目录]
-# 输出 git 历史的"考古摘要"，供 scratch:dots 分析演化过程。
+# 输出 git 历史的"考古摘要"，供 sc:dots 分析演化过程。
 # 已过滤噪音：merge commit、bot 作者、锁文件/构建产物、依赖升级与格式化类 commit。
 set -eu   # 不用 pipefail：git log | head 会触发 SIGPIPE
 

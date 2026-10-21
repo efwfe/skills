@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""把 scratch:blog 的 Markdown 成品打包成排版好的单文件 HTML。
+"""把 sc:blog 的 Markdown 成品打包成排版好的单文件 HTML。
 
 用法: uv run --with markdown python build_html.py article.md [-o out.html]
 

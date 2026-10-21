@@ -6,9 +6,9 @@
   },
   "plugins": [
     {
-      "name": "scratch",
+      "name": "sc",
       "source": "./",
-      "description": "/scratch:learn dispatcher plus scratch:blog, scratch:repo, scratch:dots and scratch:graph"
+      "description": "/sc:learn dispatcher plus sc:blog, sc:repo, sc:dots and sc:graph"
     }
   ]
 }
