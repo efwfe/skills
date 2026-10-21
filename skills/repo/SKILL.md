@@ -1,6 +1,6 @@
 ---
 name: repo
-description: Turn any GitHub repo into a from-scratch learning course for readers who only know basic Python, and write it up. Maps the repo (entry points, import layers), traces the golden path, designs a simplify-to-real ladder per component, verifies against the original repo as oracle, drafts chapters with an isolated review pass and a beginner proofread, and draws book-style figures. A five-question fit assessment routes each repo to a full rebuild, a kernel-only rebuild, or a baby from-scratch mode (small implementation whose main deliverable is a mental model card). Use when the user wants to learn/teach a repository "from scratch", write tutorial chapters or articles about a codebase, or asks for the Raschka "Build X From Scratch" approach. Trigger on "from scratch", "抽丝剥茧", "学习这个仓库", "写教程/文章", "/scratch:repo".
+description: Rebuild a GitHub repo from scratch to really understand it. Practice mode (default for self-study) - the user writes the code while Claude coaches with per-component labs, failing tests, oracle outputs from the original repo, tiered hints and reviews. Book mode - Claude writes a from-scratch course for readers who only know basic Python (Raschka "Build X From Scratch" style) with verified code and figures. A fit assessment routes each repo to a full rebuild, a kernel-only rebuild, or a small "baby" version. Use when the user wants to learn a repository by rebuilding it, practice implementing it, or write tutorial chapters about it. Trigger on "from scratch", "从零重建", "自己写一遍", "练习", "抽丝剥茧", "学习这个仓库", "写教程", "/scratch:repo".
 ---
 
 # scratch:repo — 把仓库从零重建成课程
@@ -8,6 +8,17 @@ description: Turn any GitHub repo into a from-scratch learning course for reader
 > 路径说明:本 skill 目录是 `${CLAUDE_PLUGIN_ROOT}/skills/repo`(作为 scratch 插件安装时,该变量会被自动替换成绝对路径);手动安装时就是本 SKILL.md 所在目录(加载时给出的 Base directory)。下文的 `scripts/`、`references/`、`templates/` 都相对这个目录。
 
 把一个陌生仓库,变成"从空文件夹重新长出来"的课程。方法源自 Raschka《Build a LLM From Scratch》(拆解见 `references/pedagogy.md`),泛化到任意仓库。
+
+## 两种模式
+
+| 模式 | 什么时候 | 谁写实现 | 产物 |
+|---|---|---|---|
+| **练习模式** | 用户自己想学会:"我想自己写一遍""练习""动手""带我做" | 用户 | `lab/`:每个组件一个练习目录(题面、骨架、测试、oracle)+ `PROGRESS.md` |
+| **出书模式** | 要写给别人读:"写教程""写课程""写成文章""出书" | Claude | `chapters/`、`figures/`,下文的写作流水线 |
+
+用户没说清时,用一个问题让他选(AskUserQuestion),**练习模式**放第一个并标推荐——亲手重建才学得会。练习模式的完整做法见 `references/practice-mode.md`:阶段 0–2.5 照常做(只为备课),之后不走写作流水线,改成"出题 → 先预测 → 用户实现 → 阶梯提示 → 评审 → 贯通题"的循环。`lab/PROGRESS.md` 存在时,说明用户在继续上次的练习,先读它,从停下的那一级接着练。
+
+下文的总原则、信条和工作流以出书模式为准;其中关于"真实运行、原仓库是预言机、一级只加一个概念、四层贯通"的部分,两种模式都守。
 
 ## 总原则
 
@@ -55,6 +66,7 @@ description: Turn any GitHub repo into a from-scratch learning course for reader
 
 ## 文件地图
 
+- `references/practice-mode.md` — 练习模式:备课门禁、每级练习循环、提示阶梯、评审与收尾
 - `references/learning-lens.md` — 四层透镜(思想/心智模型/架构/实现)、纵向贯通与横向连接、设计决策卡、贯通自测题(三个 skill 共用)
 - `references/pedagogy.md` — 书的 12 条教学手法 + 一节的标准节奏 + 给基础薄弱读者的讲解顺序 + 每个组件的脉络规则
 - `references/narrative-structure.md` — 全局脉络树与局部五步脉流、脉络条格式、两级路线图的位置与图注
@@ -69,6 +81,7 @@ description: Turn any GitHub repo into a from-scratch learning course for reader
 - `references/reproducibility.md` — 可复现性默认做法:随机调用前有 seed、环境锁定、输出由脚本写入、第 1 章复现步骤
 - `references/writing-pipeline.md` — 写作流水线、起草/审稿/初学者通读提示词、baby 模式补充、发布门禁
 - `references/figures.md` — 图的特征、类型表、图注单写规则、边界检查与 PNG 回退链
+- `templates/lab-readme.md` · `templates/lab-progress.md` · `templates/lab-test.py`(练习模式)
 - `templates/chapter.md` · `templates/synthesis.md`(收尾章"融会贯通")· `templates/appendix-basics.md` · `templates/appendix-deepdive.md` · `templates/glossary.md` · `templates/scope.md`(00-scope.md)· `templates/mental-model-card.md`(领域心智模型卡;baby 模式的主交付物)
 - `scripts/repo_map.py` · `assemble_chapter.py` · `verify_listings.py` · `figkit.py` · `check_images.py` · `lint_chapter.py` · `check_repro.py`(均用 `uv run python` 运行,零第三方依赖)
 
