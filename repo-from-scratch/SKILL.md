@@ -15,7 +15,7 @@ description: Turn any GitHub repo into a from-scratch learning course for reader
 
 **读者画像:只会基础 Python。** 假设他会:变量、函数、循环、dict/list、用 uv/pip 装包、照着脚本敲并看输出。**不假设**他会 PyTorch、线性代数、概率——所有前置概念要么写进书的附录 A,要么注册进术语表(见 `references/beginner-reader.md`)。
 
-## 核心信条(十四条)
+## 核心信条(十五条)
 
 1. **先失败,再方案**:每个组件前先演示没有它会怎样,而且要**真的运行**给读者看。
 2. **骨架先行**:`Dummy*` 占位,项目任何时刻能跑。
@@ -31,6 +31,7 @@ description: Turn any GitHub repo into a from-scratch learning course for reader
 12. **有声音**:并肩搭东西的老手口吻,先画面后术语,用五个心智模型反复说同一件事(见 `references/voice.md`)。
 13. **流程带编号、抽象对象细讲**:讲有先后顺序的过程,编号贯穿正文、代码注释、图、输出;token、隐状态、算法中间量这类看不见的东西,至少打印一次真实的值并逐步追踪(见 `references/process-narration.md`)。
 14. **主线连贯,支线分流**:稍复杂但不影响主线的内容放附录 B(深入专题),正文只留结论和指路;一两句的放旁枝框;被多章依赖的基础放附录 A(见 `references/appendix-policy.md`)。
+15. **四层贯通**:重建不是目的,融会贯通才是。每个本质组件都要在**思想 → 心智模型 → 架构 → 实现**四层之间打通:每章一节"设计取舍"(设计决策卡:问题与约束、备选、选择与代价、证据、约束变了会怎样),全书一张贯通表,收尾一章"融会贯通"把全书串成一张图(见 `references/learning-lens.md`)。
 
 ## 工作流
 
@@ -40,6 +41,7 @@ description: Turn any GitHub repo into a from-scratch learning course for reader
 | 0.5 | 适配度评估 | 五问三档(`references/fit-assessment.md`),答案写进 `00-scope.md`;档位有争议先问用户 | A 走 1–9 全流程;B 只重建内核;C 走 baby 模式(`references/baby-mode.md`) |
 | 1 | 地图 | `uv run python ~/.claude/skills/repo-from-scratch/scripts/repo_map.py <repo>` | 入口、核心、import 分层;区分 本质/工程/扩展 |
 | 2 | 追路径 | 最小输入 + 插桩打印名字与 shape;逐节点做删除实验 | 数据流脊柱 + 本质清单 |
+| 2.5 | 架构与思想 | 画架构总图(3–7 个零件、每条边写传什么);每条关键边界写一张设计决策卡;为每个本质组件提炼领域心智模型;填贯通表初稿(`repo-dissection.md` 阶段 2.5) | `00-scope.md` 的"架构与设计决策""领域心智模型""贯通表" |
 | 3 | 阶梯 | 为每个本质组件设计 L0…Ln | 每章阶梯草稿 |
 | 4 | 前置盘点 | 列出全书用到的所有前置概念,三分:只一章用 → 该章正文/旁枝;多章用 → 附录 A + 术语表;全书脚手架 → 第 1 章 | 前置阶梯清单 + 术语表初稿(`references/beginner-reader.md`) |
 | 5 | 规格表 | 每个概念填位置/失败动机/玩具实例/阶梯/不变量/Oracle 对比(`repo-dissection.md` 阶段 6) | 章节规格表 |
@@ -47,11 +49,13 @@ description: Turn any GitHub repo into a from-scratch learning course for reader
 | 7 | 起草 | 事实包 → 大纲 → 起草(宿主会话)→ 隔离上下文审稿 → 初学者通读 → 修订(`references/writing-pipeline.md`) | `chapters/NN.md` |
 | 8 | 验证 | `uv run python ~/.claude/skills/repo-from-scratch/scripts/verify_listings.py chapters/NN.md --fill`;再跑 `~/.claude/skills/repo-from-scratch/scripts/lint_chapter.py`、`~/.claude/skills/repo-from-scratch/scripts/check_repro.py` 与 `~/.claude/skills/repo-from-scratch/scripts/check_images.py` | 所有块通过;输出真实;随机块有 seed;lint 零违规 |
 | 9 | 画图 | `~/.claude/skills/repo-from-scratch/scripts/figkit.py`(`references/figures.md`) | `figures/*.svg` + `.png`,打开检查 |
+| 10 | 融会贯通 | 全部章节完成后写收尾章(`templates/synthesis.md`):回到架构总图、贯通表定稿、设计决策汇总、迁移与改约束练习、真实仓库阅读路线 | `chapters/99-synthesis.md` |
 
 每一步结束前,按对应文档的"默认做法/门禁"自查。**步骤 0 若缺信息(例如终点演示不明),先问用户,不要猜。**
 
 ## 文件地图
 
+- `references/learning-lens.md` — 四层透镜(思想/心智模型/架构/实现)、纵向贯通与横向连接、设计决策卡、贯通自测题(三个 skill 共用)
 - `references/pedagogy.md` — 书的 12 条教学手法 + 一节的标准节奏 + 给基础薄弱读者的讲解顺序 + 每个组件的脉络规则
 - `references/narrative-structure.md` — 全局脉络树与局部五步脉流、脉络条格式、两级路线图的位置与图注
 - `references/beginner-reader.md` — 读者画像、前置阶梯盘点规则、附录 A 目录与术语表条目格式
@@ -65,7 +69,7 @@ description: Turn any GitHub repo into a from-scratch learning course for reader
 - `references/reproducibility.md` — 可复现性默认做法:随机调用前有 seed、环境锁定、输出由脚本写入、第 1 章复现步骤
 - `references/writing-pipeline.md` — 写作流水线、起草/审稿/初学者通读提示词、baby 模式补充、发布门禁
 - `references/figures.md` — 图的特征、类型表、图注单写规则、边界检查与 PNG 回退链
-- `templates/chapter.md` · `templates/appendix-basics.md` · `templates/appendix-deepdive.md` · `templates/glossary.md` · `templates/scope.md`(00-scope.md)· `templates/mental-model-card.md`(baby 模式)
+- `templates/chapter.md` · `templates/synthesis.md`(收尾章"融会贯通")· `templates/appendix-basics.md` · `templates/appendix-deepdive.md` · `templates/glossary.md` · `templates/scope.md`(00-scope.md)· `templates/mental-model-card.md`(领域心智模型卡;baby 模式的主交付物)
 - `scripts/repo_map.py` · `assemble_chapter.py` · `verify_listings.py` · `figkit.py` · `check_images.py` · `lint_chapter.py` · `check_repro.py`(均用 `uv run python` 运行,零第三方依赖)
 
 ## 约定
@@ -85,3 +89,4 @@ description: Turn any GitHub repo into a from-scratch learning course for reader
 - 让模型生成代码输出;让起草的上下文审自己的稿。
 - 写成说明文档:先罗列参数再举例;营销腔和权威腔。
 - 把工程细节(分布式、缓存、CLI)塞进主线 —— 放"工程篇"。
+- 只讲"怎么写"不讲"为什么这样设计":每个本质组件都要有设计取舍与它在架构总图里的位置;把架构写成目录清单、把心智模型写成比喻。

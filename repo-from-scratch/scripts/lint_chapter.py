@@ -22,6 +22,8 @@
   7. 代码块里随机调用之前要有对应 seed(torch.manual_seed /
      np.random.seed / random.seed),逻辑复用 check_repro.py(导入,不复制):
      细则见 references/reproducibility.md。
+  8. 普通章(非 baby 模式)要有"设计取舍"一节(标题含"设计取舍"即可):
+     本组件为什么长成这样,见 references/learning-lens.md。
 """
 import argparse
 import re
@@ -33,6 +35,7 @@ import check_images  # 复用图片可解析性检查,不复制解析逻辑
 import check_repro  # 复用随机调用前必须有种子的静态检查,不复制逻辑
 
 MAX_LINES = 15
+DESIGN = re.compile(r"^#{1,6}.*设计取舍", re.M)
 DISCLAIM = re.compile(r"未验证|没验证|我没|我们没有运行|没有运行")
 META = re.compile(r"Raschka|写作流程|这对应")
 REQUIRED = ("前置知识", "诚实边界", "局限", "练习")
@@ -193,6 +196,9 @@ def lint_file(path, mode="standard"):
     # 7 [提醒] 随机调用前要有种子(复用 check_repro.py 的静态检查)
     for line, call, hint in check_repro.seed_violations(str(path)):
         warns.append((line, f'随机调用 "{call}" 之前没有 {hint} 种子(细则见 references/reproducibility.md)'))
+    # 8 [提醒] 普通章要有"设计取舍"一节(baby 章由"与真实实现的差距"承担)
+    if kind == "chapter" and mode != "baby" and not DESIGN.search(text):
+        warns.append((len(lines), '缺"设计取舍"一节:本组件为什么长成这样(设计决策卡 + 贯通表一行,见 references/learning-lens.md)'))
     return sorted(errors), sorted(warns)
 
 

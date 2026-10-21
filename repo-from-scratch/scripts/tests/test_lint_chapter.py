@@ -125,6 +125,19 @@ class TestNonChapterFiles(unittest.TestCase):
         self.assertTrue(any("路线图" in alt or "roadmap" in ref
                             for alt, ref in lint_chapter.check_images.IMG.findall(ok)))
 
+    def test_missing_design_section_warns(self):
+        text = (DATA / "clean.md").read_text(encoding="utf-8").replace("## 设计取舍", "## 别的")
+        f = self._write("ch05.md", text)
+        code, out = run_lint(f)
+        self.assertIn('[提醒] 缺"设计取舍"一节', out)  # 只是[提醒],不是[错误]
+        code, out = run_lint(f, mode="baby")
+        self.assertNotIn("设计取舍", out)             # baby 章不要求
+
+    def test_numbered_design_heading_counts(self):
+        text = (DATA / "clean.md").read_text(encoding="utf-8").replace("## 设计取舍", "## 9.3 设计取舍汇总")
+        code, out = run_lint(self._write("ch09.md", text))
+        self.assertNotIn("设计取舍", out)
+
     def test_headings_do_not_count_as_term_use(self):
         import tempfile
         d = Path(tempfile.mkdtemp())
