@@ -1,0 +1,12 @@
+{
+  "name": "scratch",
+  "displayName": "Scratch: learn by rebuilding",
+  "version": "0.2.0",
+  "description": "Learn by rebuilding: regrow blog posts and repos from scratch, distill transferable ideas into a dot library, and visualize how what you've learned connects.",
+  "author": {
+    "name": "efwfe",
+    "url": "https://github.com/efwfe"
+  },
+  "repository": "https://github.com/efwfe/skills",
+  "keywords": ["learning", "from-scratch", "mental-model", "knowledge-graph", "zettelkasten"]
+}

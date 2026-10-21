@@ -1,11 +1,11 @@
 ---
-name: repo-from-scratch
-description: Turn any GitHub repo into a from-scratch learning course for readers who only know basic Python, and write it up. Maps the repo (entry points, import layers), traces the golden path, designs a simplify-to-real ladder per component, verifies against the original repo as oracle, drafts chapters with an isolated review pass and a beginner proofread, and draws book-style figures. A five-question fit assessment routes each repo to a full rebuild, a kernel-only rebuild, or a baby from-scratch mode (small implementation whose main deliverable is a mental model card). Use when the user wants to learn/teach a repository "from scratch", write tutorial chapters or articles about a codebase, or asks for the Raschka "Build X From Scratch" approach. Trigger on "from scratch", "抽丝剥茧", "学习这个仓库", "写教程/文章", "/repo-from-scratch".
+name: repo
+description: Turn any GitHub repo into a from-scratch learning course for readers who only know basic Python, and write it up. Maps the repo (entry points, import layers), traces the golden path, designs a simplify-to-real ladder per component, verifies against the original repo as oracle, drafts chapters with an isolated review pass and a beginner proofread, and draws book-style figures. A five-question fit assessment routes each repo to a full rebuild, a kernel-only rebuild, or a baby from-scratch mode (small implementation whose main deliverable is a mental model card). Use when the user wants to learn/teach a repository "from scratch", write tutorial chapters or articles about a codebase, or asks for the Raschka "Build X From Scratch" approach. Trigger on "from scratch", "抽丝剥茧", "学习这个仓库", "写教程/文章", "/scratch:repo".
 ---
 
-# repo-from-scratch
+# scratch:repo — 把仓库从零重建成课程
 
-> 路径说明:`scripts/`、`references/`、`templates/` 相对本 SKILL.md 所在目录;在其他项目中使用时用绝对路径调用,例如 `uv run python ~/.claude/skills/repo-from-scratch/scripts/repo_map.py`。
+> 路径说明:本 skill 目录是 `${CLAUDE_PLUGIN_ROOT}/skills/repo`(作为 scratch 插件安装时,该变量会被自动替换成绝对路径);手动安装时就是本 SKILL.md 所在目录(加载时给出的 Base directory)。下文的 `scripts/`、`references/`、`templates/` 都相对这个目录。
 
 把一个陌生仓库,变成"从空文件夹重新长出来"的课程。方法源自 Raschka《Build a LLM From Scratch》(拆解见 `references/pedagogy.md`),泛化到任意仓库。
 
@@ -39,7 +39,7 @@ description: Turn any GitHub repo into a from-scratch learning course for reader
 |---|---|---|---|
 | 0 | 定义 | 克隆、跑起来;写"一句话/黄金路径/终点演示" | `00-scope.md`;**能跑才继续** |
 | 0.5 | 适配度评估 | 五问三档(`references/fit-assessment.md`),答案写进 `00-scope.md`;档位有争议先问用户 | A 走 1–9 全流程;B 只重建内核;C 走 baby 模式(`references/baby-mode.md`) |
-| 1 | 地图 | `uv run python ~/.claude/skills/repo-from-scratch/scripts/repo_map.py <repo>` | 入口、核心、import 分层;区分 本质/工程/扩展 |
+| 1 | 地图 | `uv run python ${CLAUDE_PLUGIN_ROOT}/skills/repo/scripts/repo_map.py <repo>` | 入口、核心、import 分层;区分 本质/工程/扩展 |
 | 2 | 追路径 | 最小输入 + 插桩打印名字与 shape;逐节点做删除实验 | 数据流脊柱 + 本质清单 |
 | 2.5 | 架构与思想 | 画架构总图(3–7 个零件、每条边写传什么);每条关键边界写一张设计决策卡;为每个本质组件提炼领域心智模型;填贯通表初稿(`repo-dissection.md` 阶段 2.5) | `00-scope.md` 的"架构与设计决策""领域心智模型""贯通表" |
 | 3 | 阶梯 | 为每个本质组件设计 L0…Ln | 每章阶梯草稿 |
@@ -47,8 +47,8 @@ description: Turn any GitHub repo into a from-scratch learning course for reader
 | 5 | 规格表 | 每个概念填位置/失败动机/玩具实例/阶梯/不变量/Oracle 对比(`repo-dissection.md` 阶段 6) | 章节规格表 |
 | 6 | 对账 | 建 `oracle/`:固定种子保存原仓库输出 | 每章末尾一个 `assert` |
 | 7 | 起草 | 事实包 → 大纲 → 起草(宿主会话)→ 隔离上下文审稿 → 初学者通读 → 修订(`references/writing-pipeline.md`) | `chapters/NN.md` |
-| 8 | 验证 | `uv run python ~/.claude/skills/repo-from-scratch/scripts/verify_listings.py chapters/NN.md --fill`;再跑 `~/.claude/skills/repo-from-scratch/scripts/lint_chapter.py`、`~/.claude/skills/repo-from-scratch/scripts/check_repro.py` 与 `~/.claude/skills/repo-from-scratch/scripts/check_images.py` | 所有块通过;输出真实;随机块有 seed;lint 零违规 |
-| 9 | 画图 | `~/.claude/skills/repo-from-scratch/scripts/figkit.py`(`references/figures.md`) | `figures/*.svg` + `.png`,打开检查 |
+| 8 | 验证 | `uv run python ${CLAUDE_PLUGIN_ROOT}/skills/repo/scripts/verify_listings.py chapters/NN.md --fill`;再跑 `${CLAUDE_PLUGIN_ROOT}/skills/repo/scripts/lint_chapter.py`、`${CLAUDE_PLUGIN_ROOT}/skills/repo/scripts/check_repro.py` 与 `${CLAUDE_PLUGIN_ROOT}/skills/repo/scripts/check_images.py` | 所有块通过;输出真实;随机块有 seed;lint 零违规 |
+| 9 | 画图 | `${CLAUDE_PLUGIN_ROOT}/skills/repo/scripts/figkit.py`(`references/figures.md`) | `figures/*.svg` + `.png`,打开检查 |
 | 10 | 融会贯通 | 全部章节完成后写收尾章(`templates/synthesis.md`):回到架构总图、贯通表定稿、设计决策汇总、迁移与改约束练习、真实仓库阅读路线 | `chapters/99-synthesis.md` |
 
 每一步结束前,按对应文档的"默认做法/门禁"自查。**步骤 0 若缺信息(例如终点演示不明),先问用户,不要猜。**
@@ -71,6 +71,33 @@ description: Turn any GitHub repo into a from-scratch learning course for reader
 - `references/figures.md` — 图的特征、类型表、图注单写规则、边界检查与 PNG 回退链
 - `templates/chapter.md` · `templates/synthesis.md`(收尾章"融会贯通")· `templates/appendix-basics.md` · `templates/appendix-deepdive.md` · `templates/glossary.md` · `templates/scope.md`(00-scope.md)· `templates/mental-model-card.md`(领域心智模型卡;baby 模式的主交付物)
 - `scripts/repo_map.py` · `assemble_chapter.py` · `verify_listings.py` · `figkit.py` · `check_images.py` · `lint_chapter.py` · `check_repro.py`(均用 `uv run python` 运行,零第三方依赖)
+
+
+## 学习记录(有 dot 库时)
+
+如果用户有 dot 库(`$DOT_LIBRARY` 或 `~/dot-library/` 存在;**不存在就跳过,不要创建**),写一条学习记录 `projects/course-<课程名>.md`,让 `/scratch:graph` 能把这次学习画进关系图。在 `00-scope.md` 定稿后写第一版,收尾章写完后更新"核心心智模型"(取自贯通表):
+
+```markdown
+# <标题>
+
+- 类型:course
+- 来源:<原始链接>
+- 产物:<本地路径>
+- 日期:YYYY-MM-DD
+
+## 核心心智模型
+- <一句话>
+
+## 关联的 dot
+- [[<已存在的 dot 名>]]:<一句话说明关系>
+
+## 候选 dot(未入库)
+- <名字>:<剥名后的一句话>(用 /scratch:dots 收入)
+```
+
+- `## 关联的 dot` 只链接 `index.md` 里**已经存在**的 dot,关系要具体到共同机制;找不到就留空。不确定的连接不写——宁可漏连,不可错连。
+- 候选 dot 只写文字、不加 `[[ ]]`,**不在 `dots/`、`candidates/` 里建文件**:入库要走 `/scratch:dots` 的四个测试和同源判断。
+- 写完在 dot 库里 `git add projects/course-<课程名>.md && git commit -m "scratch:repo: <标题>"`。
 
 ## 约定
 

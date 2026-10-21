@@ -1,0 +1,14 @@
+{
+  "name": "efwfe-skills",
+  "description": "Personal learning skills by efwfe",
+  "owner": {
+    "name": "efwfe"
+  },
+  "plugins": [
+    {
+      "name": "scratch",
+      "source": "./",
+      "description": "/scratch:learn dispatcher plus scratch:blog, scratch:repo, scratch:dots and scratch:graph"
+    }
+  ]
+}

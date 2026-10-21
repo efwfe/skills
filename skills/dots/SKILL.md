@@ -1,9 +1,11 @@
 ---
-name: connect-dots
+name: dots
 description: 分析一个 GitHub 项目，提取其中"不变的、可迁移的思想"（dot），沉淀进用户个人的 dot 库，并发现 dot 之间的连接。当用户给出 GitHub 仓库链接或本地仓库路径，并说"帮我学习这个项目""提炼 dot""沉淀这个项目的思想""connect dots"，或要求盘点/复盘 dot 库时使用。默认互动模式；用户说"快速"时走快速模式。不用于普通的代码讲解、模块介绍或 bug 排查。
 ---
 
-# connect-dots：从项目里提炼 dot，沉淀进个人知识库
+# scratch:dots — 从项目里提炼 dot，沉淀进个人知识库
+
+> 路径说明:本 skill 目录是 `${CLAUDE_PLUGIN_ROOT}/skills/dots`（作为 scratch 插件安装时,该变量会被自动替换成绝对路径）；手动安装时就是本 SKILL.md 所在目录（加载时给出的 Base directory）。下文的 `scripts/`、`references/`、`templates/` 都相对这个目录。
 
 ## 目的
 
@@ -75,14 +77,17 @@ dot-library/
   projects/      # 每个分析过的项目一个笔记
   tensions.md    # dot 之间的张力记录
   changelog.md   # 每次分析后库里发生了什么变化
+  graph.html     # /scratch:graph 生成的关系图，不入库（写进 .gitignore）
 ```
+
+`projects/` 里还会出现 `scratch:blog` 写的 `blog-<slug>.md` 和 `scratch:repo` 写的 `course-<课程名>.md`（学习记录），它们不是 dot，但会出现在关系图上。
 
 3. **先读 `index.md` 再分析**，不要逐个打开 dot 文件。只有在比对时怀疑同源，才打开对应的 dot 文件细读。
 4. 如果 `index.md` 与目录里的实际文件不一致（用户手动改过），以文件为准，重建索引并告诉用户。
 
 ### 来自其他 skill 的材料
 
-`blog-from-scratch` 产出的文章、`repo-from-scratch` 产出的课程，也可以作为例证来源，但要守两条：
+`scratch:blog` 产出的文章、`scratch:repo` 产出的课程，也可以作为例证来源，但要守两条：
 - 例证仍然指向**原始出处**（博客原文链接、原仓库 `path:line`），不指向重写稿；重写稿里的比喻和补充不算证据。
 - 博客例证的项目笔记文件名用 `blog-<slug>`，放在 `projects/`；它和讲同一个项目的仓库例证**不算两个独立例证**（复现测试要求不相关的来源）。
 
@@ -91,17 +96,18 @@ dot-library/
 全库统一使用 `[[文件名]]` 双链（与 Obsidian 兼容）。文件名在全库唯一，因此 dot 从 `candidates/` 移到 `dots/` 或 `archive/` 时链接不会断。
 - dot 文件名：kebab-case 英文或拼音，例如 `append-only-log`
 - 项目笔记文件名：`owner-repo`，例如 `tj-commander.js`
+- `/scratch:graph` 靠链接所在的小节判断关系类型（`## 例证` → 例证，`## 连接` 里的 `- 同源异形：` 等 → 对应关系），所以链接要写在模板规定的位置
 
 ## 二、获取材料
 
 ### 2.1 克隆仓库
-- 克隆到临时目录（如 `~/.cache/connect-dots/<owner>-<repo>`），**不要放进 dot 库**。已存在则 `git pull`。
+- 克隆到临时目录（如 `~/.cache/scratch/repos/<owner>-<repo>`），**不要放进 dot 库**。已存在则 `git pull`。
 - 必须完整历史克隆，不能 `--depth 1`。若是浅克隆，执行 `git fetch --unshallow`。
 - 网络受限无法克隆时，如实告诉用户，请用户提供本地副本，不要只凭 README 硬做。
 - 大型仓库或 monorepo：先问用户关注哪个子目录。
 
 ### 2.2 历史考古
-运行本 skill 目录下的 `scripts/git-timeline.sh <仓库路径> [子目录]`。它已过滤 merge、bot、锁文件、依赖升级和格式化类提交，输出：基本信息、意图文件清单、首批 commit、提交密度、删除量最大的 commit、变更最频繁的文件、tag 时间线、贡献者。
+运行 `bash ${CLAUDE_PLUGIN_ROOT}/skills/dots/scripts/git-timeline.sh <仓库路径> [子目录]`。它已过滤 merge、bot、锁文件、依赖升级和格式化类提交，输出：基本信息、意图文件清单、首批 commit、提交密度、删除量最大的 commit、变更最频繁的文件、tag 时间线、贡献者。
 
 ### 2.3 意图文件（优先阅读）
 脚本会列出 `CLAUDE.md`、`AGENTS.md`、`.cursorrules`、ADR、设计文档等。这些是作者写给协作者（包括 AI）的约束和决策，信息密度往往高于代码本身。README 里的 Non-goals、Why、Motivation 段落同属此类。
@@ -295,6 +301,17 @@ core bet 说完后，向下追到代码，不做全仓库的模块介绍：
 - 改约束：如果 <规模 ×100 / 换成分布式 / 换成离线>，作者的哪个决策最先要推翻？
 ```
 
+### `tensions.md` 条目
+
+每条张力一个小节，标题里放两个链接（`/scratch:graph` 据此画红色虚线）：
+
+```markdown
+## [[append-only-log]] × [[compaction]]
+- 拉扯点：可回溯 vs 存储空间
+- [[append-only-log]] 占上风：需要审计、并发写
+- [[compaction]] 占上风：历史很长、读多写少
+```
+
 ### `changelog.md` 条目
 
 ```markdown
@@ -307,7 +324,7 @@ core bet 说完后，向下追到代码，不做全仓库的模块介绍：
 ```
 
 ### 提交
-写完后在 dot 库里执行 `git add -A && git commit -m "connect-dots: <owner/repo>"`。dot 库自己的历史，就是用户功底的演化史。
+写完后在 dot 库里执行 `git add -A && git commit -m "scratch:dots: <owner/repo>"`。dot 库自己的历史，就是用户功底的演化史。
 
 ## 六、给用户的最终回复
 
@@ -321,7 +338,7 @@ core bet 说完后，向下追到代码，不做全仓库的模块介绍：
 
 ## 七、复盘模式
 
-用户说"盘点""复盘 dot 库"或类似意思时，不分析新项目，而是读 `index.md`、`changelog.md`、`tensions.md`（必要时打开具体 dot 文件），报告：
+用户说"盘点""复盘 dot 库"或类似意思时，不分析新项目。先运行 `uv run python ${CLAUDE_PLUGIN_ROOT}/skills/graph/scripts/learning_graph.py <dot库> --report`（它会顺带生成关系图 `graph.html`，把路径给用户），再读 `index.md`、`changelog.md`、`tensions.md`（必要时打开具体 dot 文件），报告：
 
 - **功底所在**：例证数最多的几个 dot，其中"我自己的话"还空着的，提醒用户填写
 - **建议归档**：首次记录后又分析了 10 个以上项目仍未复现的候选（用 changelog 里的项目序号计算）。用户同意后移到 `archive/`，不用惋惜
@@ -329,6 +346,7 @@ core bet 说完后，向下追到代码，不做全仓库的模块介绍：
 - **悬空 dot**：实现面一直没有 `path:line` 的 dot，只停在思想层，建议下次分析时专门追到代码
 - **孤立 dot** 和 `tensions.md` 中出现最多的张力
 - **盲区**：例证全来自同一类项目（比如全是前端库、全是 CLI 工具）的 dot，可能是领域偏见而不是通用的不变性
+- **悬挂链接与孤岛**：报告里列出的，问用户是拼错了还是一个值得记的想法；想和图一起逐项梳理时，转到 `/scratch:graph`
 - **下一步**：推荐一类值得分析的项目，用来补盲区或验证某个候选
 
 ## 原则
