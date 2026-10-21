@@ -16,6 +16,27 @@
 | [`connect-dots`](connect-dots/) | 分析 GitHub 项目,提炼"不变的、可迁移的思想"(dot),沉淀进个人 dot 库并发现 dot 之间的连接 | GitHub 链接或本地仓库路径 | dot 库的更新 |
 | [`repo-from-scratch`](repo-from-scratch/) | 把任意仓库变成面向 Python 初学者的"从零构建"教程课程(Raschka《Build X From Scratch》方法) | 仓库地址 | 课程章节、配图、可验证的代码 |
 
+### 共同的学习框架:四层贯通
+
+三个 Skill 共用一套"四层透镜"(`*/references/learning-lens.md`,三份内容一致):
+
+| 层 | 回答 | 合格的样子 |
+|---|---|---|
+| 思想 | 它押注了什么? | 剥掉项目名也说得清,说得出"为了 A 放弃了 B" |
+| 心智模型 | 脑子里该有什么可运转的模型? | 能预测新情形,知道在哪失效 |
+| 架构 | 怎么切成零件、为什么这样切? | 3–7 个零件 + 每条边界一张设计决策卡 |
+| 实现 | 关键代码在哪、守护什么? | 指得到 `path:line`,说得出删掉会坏什么 |
+
+"融会贯通"= 四层之间能**上下打通**(从思想追到代码,从代码收回思想,产物是一张贯通表),并和已知的东西**横向连上**(同源异形 / 张力 / 依赖 / 传承)。每个 Skill 收尾都有对应的自测题:复述、预测、向上收、向下追、改约束、迁移。
+
+三个 Skill 可以串成一条学习路线:
+
+```text
+blog-from-scratch   读懂一篇文章的思路 ──┐
+repo-from-scratch   亲手重建一个仓库   ──┼──> connect-dots   跨项目沉淀成 dot 库,发现连接
+(两者都会产出候选 dot,入库由你决定)   ──┘
+```
+
 ### 安装
 
 Claude Code 会从 `~/.claude/skills/<skill 名>/` 读取 Skill(目录下需有 `SKILL.md`)。
@@ -78,7 +99,8 @@ done
 
 - `SKILL.md` 顶部 frontmatter 的 `description` 决定何时触发,改触发词就改这里。
 - 脚本路径相对 `SKILL.md` 所在目录;跨项目使用时用绝对路径,如 `~/.claude/skills/<skill>/scripts/...`。
-- `repo-from-scratch/scripts/tests/` 含单元测试:`cd repo-from-scratch/scripts && uv run -m pytest tests`。
+- 改 `learning-lens.md` 时三份同步(`diff blog-from-scratch/references/learning-lens.md connect-dots/references/learning-lens.md` 应无输出)。
+- `repo-from-scratch/scripts/tests/` 含单元测试:`cd repo-from-scratch/scripts && uv run --with pytest -m pytest tests`。
 
 ---
 
@@ -95,6 +117,27 @@ A personal collection of [Claude Code](https://claude.com/claude-code) Skills bu
 | [`repo-from-scratch`](repo-from-scratch/) | Turns any repo into a from-scratch course for readers who only know basic Python (Raschka's "Build X From Scratch" approach) | Repo URL | Chapters, figures, verified code |
 
 > Note: the skill prompts themselves are written mostly in Chinese; the skills respond in the language you use.
+
+### Shared learning framework: four layers
+
+All three skills share a "four-layer lens" (`*/references/learning-lens.md`, three identical copies):
+
+| Layer | Question | Good enough when |
+|---|---|---|
+| Idea | What did the author bet on? | Stated without project/framework names, as "gave up B to get A" |
+| Mental model | What runnable model should be in your head? | It predicts new cases and you know where it breaks |
+| Architecture | How is it split into parts, and why there? | 3–7 parts, one design-decision card per key boundary |
+| Implementation | Where is the key code, and what does it protect? | You can point at `path:line` and say what breaks without it |
+
+Real understanding means moving **vertically** between the layers (idea → code and code → idea, captured in a through-line table) and connecting **horizontally** to what you already know (same mechanism / tension / dependency / lineage). Each skill closes with self-check questions: retell, predict, trace up, trace down, change a constraint, transfer.
+
+The three skills chain into one loop:
+
+```text
+blog-from-scratch   understand one article ──┐
+repo-from-scratch   rebuild one repo        ──┼──> connect-dots   distill into a dot library across projects
+(both suggest candidate dots; you decide)  ──┘
+```
 
 ### Installation
 
@@ -158,4 +201,5 @@ It first runs a five-question fit assessment to choose between a full rebuild, a
 
 - The `description` in each `SKILL.md` frontmatter controls when the skill triggers; edit trigger phrases there.
 - Script paths are relative to the `SKILL.md` directory; use absolute paths like `~/.claude/skills/<skill>/scripts/...` from other projects.
-- `repo-from-scratch/scripts/tests/` holds unit tests: `cd repo-from-scratch/scripts && uv run -m pytest tests`.
+- Keep the three copies of `learning-lens.md` in sync when editing one.
+- `repo-from-scratch/scripts/tests/` holds unit tests: `cd repo-from-scratch/scripts && uv run --with pytest -m pytest tests`.
