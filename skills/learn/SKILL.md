@@ -15,6 +15,10 @@ sc 插件(scratch)有五个学习 skill,共用一套"四层贯通"框架(思想 
 | `/sc:dots` | 仓库;两个仓库(对比);或"盘点 dot 库" | dot 库的变化(新候选、强化、升级、张力) | 一个项目 |
 | `/sc:graph` | dot 库 | 可交互关系图 + 梳理报告、先学路线、可能相关的建议、Mermaid/Canvas 导出 | 几分钟 |
 
+所有命令是同一个**学习循环**的切面:用(先当黑盒用起来)→ 切(找到能切开的缝、量开销)→ 造(最小重建)→ 验(和裁判对账)→ 融(换零件、移植想法)→ 沉(收尾三问,沉淀成 dot)。详见 `${CLAUDE_PLUGIN_ROOT}/shared/learning-loop.md`。调度时告诉用户这一步在循环的哪里、下一步是什么。
+
+每个命令收尾都会问**三问**:思想(哪个想法换个项目也成立)、直觉(哪个预测错了、修正了什么,记进预测日志)、方法(这次什么学法最管用)。
+
 本 skill 只做调度:判断用哪个、按什么顺序,然后用 Skill 工具调用对应的 skill(名字写全,如 `sc:blog`),把用户的原始输入原样传过去。具体怎么做,由被调用的 skill 决定。
 
 ## 一、路由
@@ -49,7 +53,7 @@ sc 插件(scratch)有五个学习 skill,共用一套"四层贯通"框架(思想 
 ## 三、状态模式(不带参数)
 
 1. 定位 dot 库(`$DOT_LIBRARY` → `~/dot-library/`)。
-2. 存在 → 运行 `uv run python ${CLAUDE_PLUGIN_ROOT}/skills/graph/scripts/learning_graph.py <dot库> --report --no-html`,用三五行报告:学过几个项目/文章/课程、有几个 dot、最值得做的一件事(可升级的候选 > 悬挂链接 > 孤岛 > 没落到代码)。
+2. 存在 → 运行 `uv run python ${CLAUDE_PLUGIN_ROOT}/skills/graph/scripts/learning_graph.py <dot库> --report --no-html`,用三五行报告:学过几个项目/文章/课程、有几个 dot、直觉命中率与最近一次意外(有预测日志时)、最值得做的一件事(可升级的候选 > 最近的意外 > 悬挂链接 > 孤岛 > 没落到代码)。
 3. 不存在 → 说明 dot 库是什么,建议从 `/sc:dots <一个你常用的仓库>` 开始。
 4. 末尾列出五个命令,各一句话。
 

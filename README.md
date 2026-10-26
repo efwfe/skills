@@ -37,6 +37,31 @@
 
 各 skill 也能用自然语言直接触发("帮我吃透这篇文章""盘点一下我的 dot 库")。
 
+### 学习循环与收尾三问
+
+所有命令都是同一个循环的切面(`shared/learning-loop.md`):
+
+```text
+用 → 切 → 造 → 验 → 融 → 沉
+先当黑盒用起来 → 找到能切开的缝、量开销 → 最小重建 → 和裁判对账 → 换零件、移植想法 → 沉淀成 dot
+```
+
+| 步 | 具体动作 |
+|---|---|
+| 用 | 跑通;**旋钮追踪**:挑一个使用时能调的参数(温度、上下文长度、缓存开关……),先预测、做实验、追到 `path:line`、把现象和机制接上 |
+| 切 | 四类天然的缝(形状变化、状态保存、控制反转、开销集中);换成占位还能跑才算切对;**量开销**:开销地图常常直接解释了设计 |
+| 造 / 验 | 一级只加一个概念;用能拿到的最强裁判对账 |
+| 融 | **嫁接实验**:把一个零件换进别的系统,先预测哪里会坏;**移植练习**:把刚学到的 dot 用到另一个项目 |
+| 沉 | **收尾三问**,用户先答、Claude 再补 |
+
+每个命令收尾都问三问,对应要带走的三样东西:
+
+| 问 | 带走什么 | 写到哪里 |
+|---|---|---|
+| 思想 | 哪个想法换个项目也成立 | dot 候选 |
+| 直觉 | 哪个预测错了、心智模型改了什么 | 预测日志 `predictions.md`;`/sc:graph` 统计命中率和最近的意外,让直觉可以被测量 |
+| 方法 | 这次什么学法最管用,下次用在哪 | 学习记录的"这次的方法" |
+
 ### 学习路线
 
 ```text
@@ -145,6 +170,7 @@ skills/
 │   ├── references/    # 按需读取的方法论
 │   ├── scripts/       # 辅助脚本(含 tests/)
 │   └── templates/     # 输出模板
+shared/learning-loop.md  # 学习循环与收尾三问(各命令共用)
 scripts/check_sync.py  # 检查共用文件(learning-lens.md)是否同步
 ```
 
@@ -193,6 +219,10 @@ The core belief: **the best way to understand something is to build one yourself
 /sc:learn                                           # library status and next step
 /sc:graph                                           # draw the graph and tidy up together
 ```
+
+### Learning loop and the three closing questions
+
+Every command is a slice of one loop (`shared/learning-loop.md`): **use → cut → build → verify → fuse → keep**. Use it as a black box first (with *knob tracing*: predict what a user-facing parameter does, test it, trace it to `path:line`); cut along natural seams and measure where the cost goes; build minimally; verify against the strongest oracle; fuse by grafting a component into another system or transplanting a dot into another project; keep what you learned. Every command closes with three questions, answered by you first: **idea** (what holds beyond this project → dot candidate), **intuition** (which prediction was wrong → the prediction log `predictions.md`, whose hit rate `/sc:graph` tracks), and **method** (what way of learning worked best).
 
 ### Learning route
 

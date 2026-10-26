@@ -9,6 +9,8 @@ description: Rebuild a GitHub repo from scratch to really understand it. Practic
 
 把一个陌生仓库,变成"从空文件夹重新长出来"的课程。方法源自 Raschka《Build a LLM From Scratch》(拆解见 `references/pedagogy.md`),泛化到任意仓库。
 
+> 学习循环(用 → 切 → 造 → 验 → 融 → 沉,见 `${CLAUDE_PLUGIN_ROOT}/shared/learning-loop.md`):本命令负责**用(阶段 0 跑起来)、切(地图、追路径、量开销)、造、验**,练习模式收尾加一次"融";收尾按"收尾三问"沉淀。
+
 ## 两种模式
 
 | 模式 | 什么时候 | 谁写实现 | 产物 |
@@ -106,10 +108,14 @@ description: Rebuild a GitHub repo from scratch to really understand it. Practic
 
 ## 候选 dot(未入库)
 - <名字>:<剥名后的一句话>(用 /sc:dots 收入)
+
+## 这次的方法
+- <收尾三问"方法"一问,学习者的原话>
 ```
 
 - `## 关联的 dot` 只链接 `index.md` 里**已经存在**的 dot,关系要具体到共同机制;找不到就留空。不确定的连接不写——宁可漏连,不可错连。
 - 候选 dot 只写文字、不加 `[[ ]]`,**不在 `dots/`、`candidates/` 里建文件**:入库要走 `/sc:dots` 的四个测试和同源判断。
+- 收尾三问的"直觉"一问(哪个预测错了、修正了什么)追加到 dot 库根目录的 `predictions.md`,格式见学习循环第七节;"思想"一问写进候选 dot,"方法"一问写进上面的"这次的方法"。
 - 写完在 dot 库里 `git add projects/course-<课程名>.md && git commit -m "sc:repo: <标题>"`。
 
 ## 约定

@@ -75,6 +75,20 @@ class TestBuildGraph(unittest.TestCase):
         self.assertEqual(self.nodes["paper-merkle"]["date"], "2026-08-20")
         self.assertIn("增长", lg.report(self.g))
 
+    def test_prediction_log_calibration(self):
+        self.assertNotIn("predictions", self.nodes)          # 预测日志不是节点
+        cal = self.g["calibration"]
+        self.assertEqual((cal["total"], cal["hit"], cal["off"], cal["wrong"]), (3, 1, 1, 1))
+        self.assertEqual(cal["by_month"], {"2026-09": 0.0, "2026-10": 0.5})
+        self.assertEqual(cal["surprises"][0]["date"], "2026-10-05")   # 最近的意外在前
+        self.assertEqual(cal["surprises"][1]["links"], ["append-only-log"])
+        text = lg.report(self.g)
+        self.assertIn("直觉校准", text)
+        self.assertIn("命中率 33%", text)
+
+    def test_calibration_empty_without_log(self):
+        self.assertEqual(lg.calibration([]), {"total": 0})
+
     def test_build_record_kind(self):
         import tempfile
         d = Path(tempfile.mkdtemp())
