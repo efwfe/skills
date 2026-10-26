@@ -23,7 +23,8 @@ dot 库目录按此顺序确定:参数 → 环境变量 DOT_LIBRARY → ~/dot-li
                             compare-* → compare(对比笔记,不算例证来源)
   --extra 目录 → note       其他笔记(如 Obsidian 库)
   只被 [[链接]] 引用、没有文件的名字 → ghost(悬挂链接)
-index.md / changelog.md / tensions.md 不是节点;tensions.md 里同一行出现的 [[a]] [[b]] 记为张力。
+index.md / changelog.md / tensions.md / predictions.md 不是节点;tensions.md 里同一行出现的 [[a]] [[b]] 记为张力;
+predictions.md(预测日志)用来统计直觉的命中率,见 --report 的"直觉校准"。
 
 边(按 [[链接]] 所在的小节与行首推断类型):
   "例证" / "本项目涉及的 dot" 小节   → 例证
@@ -54,7 +55,7 @@ IMPL_LINE = re.compile(r"\*\*实现面\*\*")
 PATH_LINE = re.compile(r"`[^`\s]+:\d+")
 RELATIONS = ("同源异形", "张力", "依赖", "传承")
 DIRECTED = {"依赖", "传承"}
-META_FILES = {"index", "changelog", "tensions", "readme"}
+META_FILES = {"index", "changelog", "tensions", "readme", "predictions"}
 KIND_BY_DIR = {"dots": "dot", "candidates": "candidate", "archive": "archived", "projects": "project"}
 RECORD_PREFIXES = ("blog", "paper", "talk", "doc", "course", "build", "compare")
 SOURCE_PREFIXES = ("blog", "paper", "talk", "doc", "course", "build")
@@ -148,12 +149,14 @@ def build_graph(root, extra_roots=()):
             files += [p for p in sorted(base.rglob("*.md"))
                       if not any(part.startswith(".") for part in p.relative_to(base).parts)]
     nodes, raw_links = {}, []
-    tension_lines = []
+    tension_lines, prediction_lines = [], []
     for p in files:
         name = p.stem
         if name.lower() in META_FILES and p.parent in (root, *extra_roots):
             if name == "tensions":
                 tension_lines = p.read_text(encoding="utf-8", errors="ignore").splitlines()
+            if name == "predictions":
+                prediction_lines = p.read_text(encoding="utf-8", errors="ignore").splitlines()
             continue
         if name in nodes:  # 全库文件名唯一;重名时保留先遇到的,并记一条问题
             nodes[name].setdefault("flags", []).append("重名")
@@ -190,8 +193,44 @@ def build_graph(root, extra_roots=()):
     edge_list = [e for e in edges.values()
                  if e["type"] != "关联" or frozenset((e["source"], e["target"])) not in typed_pairs]
     _annotate(nodes, edge_list)
-    return {"nodes": list(nodes.values()), "edges": edge_list,
+    return {"nodes": list(nodes.values()), "edges": edge_list, "calibration": calibration(prediction_lines),
             "library": str(root), "generated": date.today().isoformat()}
+
+
+# ---------- 直觉校准 ----------
+
+RESULTS = (("命中", "hit"), ("偏", "off"), ("错", "wrong"))
+
+
+def parse_predictions(lines):
+    """读预测日志的表格行:| 日期 | 情境 | 预测 | 实际 | 结果 | 修正了什么 |。"""
+    rows = []
+    for line in lines:
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if len(cells) < 5 or not DATE.match(cells[0]):
+            continue
+        result = next((code for word, code in RESULTS if word in cells[4]), None)
+        if result is None:
+            continue
+        rows.append({"date": cells[0], "context": cells[1], "prediction": cells[2], "actual": cells[3],
+                     "result": result, "lesson": cells[5] if len(cells) > 5 else "",
+                     "links": [t.strip() for t in LINK.findall(cells[1])]})
+    return rows
+
+
+def calibration(lines):
+    rows = parse_predictions(lines)
+    if not rows:
+        return {"total": 0}
+    counts = {code: sum(r["result"] == code for r in rows) for _, code in RESULTS}
+    months = defaultdict(lambda: [0, 0])
+    for r in rows:
+        months[r["date"][:7]][0] += r["result"] == "hit"
+        months[r["date"][:7]][1] += 1
+    surprises = [r for r in sorted(rows, key=lambda r: r["date"], reverse=True) if r["result"] != "hit"][:5]
+    return {"total": len(rows), **counts, "hit_rate": round(counts["hit"] / len(rows), 3),
+            "by_month": {m: round(h / n, 3) for m, (h, n) in sorted(months.items())},
+            "surprises": surprises}
 
 
 def _annotate(nodes, edges):
@@ -303,6 +342,16 @@ def report(graph):
     if small:
         out.append(f"## 孤岛({len(small)}):和主体没有连上的小团,想想它们和主体是什么关系")
         out += ["- " + "、".join(f"[[{x}]]" for x in c) for c in small[:10]]
+        out.append("")
+    cal = graph.get("calibration") or {}
+    if cal.get("total"):
+        out.append(f"## 直觉校准(预测日志 {cal['total']} 条)")
+        out.append(f"- 命中 {cal['hit']},偏了 {cal['off']},错了 {cal['wrong']};命中率 {cal['hit_rate']:.0%}")
+        out.append("- 按月命中率:" + ",".join(f"{m} {r:.0%}" for m, r in list(cal["by_month"].items())[-6:]))
+        if cal["surprises"]:
+            out.append("- 最近的意外(心智模型要修的地方,也是新 dot 的入口):")
+            out += [f"  - {r['date']} {r['context']}:预测「{r['prediction']}」,实际「{r['actual']}」"
+                    + (f" → {r['lesson']}" if r["lesson"] else "") for r in cal["surprises"]]
         out.append("")
     tensions = [e for e in graph["edges"] if e["type"] == "张力"]
     if tensions:

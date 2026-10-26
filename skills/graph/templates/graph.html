@@ -134,7 +134,9 @@ kindsPresent.forEach(k => chip(document.getElementById("kinds"), `${KIND_LABEL[k
   `var(--k-${k})`, "", off => off ? hidden.kind.add(k) : hidden.kind.delete(k)));
 ETYPES.filter(t => edges.some(e => e.type === t)).forEach(t => chip(document.getElementById("etypes"),
   `${t} ${edges.filter(e => e.type === t).length}`, `var(--e-${t})`, "edge", off => off ? hidden.etype.add(t) : hidden.etype.delete(t)));
-document.getElementById("stats").textContent = `${nodes.length} 节点 · ${edges.length} 边 · ${DATA.generated}`;
+const CAL = DATA.calibration || {};
+document.getElementById("stats").textContent = `${nodes.length} 节点 · ${edges.length} 边` +
+  (CAL.total ? ` · 直觉命中率 ${Math.round(CAL.hit_rate * 100)}%(${CAL.total} 条预测)` : "") + ` · ${DATA.generated}`;
 
 // 时间轴:只显示截至某天记录的节点,看这张网是怎么长出来的
 const dates = [...new Set(nodes.map(n => n.date).filter(Boolean))].sort();
