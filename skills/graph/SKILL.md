@@ -35,7 +35,7 @@ uv run python ${CLAUDE_PLUGIN_ROOT}/skills/graph/scripts/learning_graph.py <dot�
 
 | 元素 | 含义 |
 |---|---|
-| 实心圆 | 已确认的 dot(蓝)、项目(绿)、学习记录(按 `projects/` 里的文件名前缀:`blog-` 文章、`paper-` 论文、`talk-` 演讲、`doc-` 设计文档、`course-` 课程)、归档(灰)、其他笔记(石板灰) |
+| 实心圆 | 已确认的 dot(蓝)、项目(绿)、学习记录(按 `projects/` 里的文件名前缀:`blog-` 文章、`paper-` 论文、`talk-` 演讲、`doc-` 设计文档、`course-` 课程、`build-` 构建)、归档(灰)、其他笔记(石板灰) |
 | 空心圆 | 候选 dot |
 | 虚线空心圆 | 悬挂链接:被 `[[链接]]` 引用,但库里没有这个文件 |
 | 边 | 例证(绿)、同源异形(蓝)、张力(红虚线)、依赖(紫箭头)、传承(棕点线箭头)、关联(灰) |

@@ -75,6 +75,14 @@ class TestBuildGraph(unittest.TestCase):
         self.assertEqual(self.nodes["paper-merkle"]["date"], "2026-08-20")
         self.assertIn("增长", lg.report(self.g))
 
+    def test_build_record_kind(self):
+        import tempfile
+        d = Path(tempfile.mkdtemp())
+        (d / "projects").mkdir()
+        (d / "projects" / "build-reasoning.md").write_text("# 推理模型\n\n- 类型:build\n", encoding="utf-8")
+        g = lg.build_graph(d)
+        self.assertEqual(g["nodes"][0]["kind"], "build")
+
     def test_compare_note_is_not_an_example_source(self):
         self.assertEqual(self.nodes["compare-jj-vs-git"]["kind"], "compare")
         self.assertTrue(edge(self.g, "compare-jj-vs-git", "content-addressing", "关联"))

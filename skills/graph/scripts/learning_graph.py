@@ -19,7 +19,7 @@ dot 库目录按此顺序确定:参数 → 环境变量 DOT_LIBRARY → ~/dot-li
   candidates/  → candidate  候选 dot
   archive/     → archived   归档的 dot
   projects/    → project    分析过的仓库;按文件名前缀:blog-* → blog,paper-* → paper,
-                            talk-* → talk,doc-* → doc,course-* → course,
+                            talk-* → talk,doc-* → doc,course-* → course,build-* → build,
                             compare-* → compare(对比笔记,不算例证来源)
   --extra 目录 → note       其他笔记(如 Obsidian 库)
   只被 [[链接]] 引用、没有文件的名字 → ghost(悬挂链接)
@@ -56,8 +56,8 @@ RELATIONS = ("同源异形", "张力", "依赖", "传承")
 DIRECTED = {"依赖", "传承"}
 META_FILES = {"index", "changelog", "tensions", "readme"}
 KIND_BY_DIR = {"dots": "dot", "candidates": "candidate", "archive": "archived", "projects": "project"}
-RECORD_PREFIXES = ("blog", "paper", "talk", "doc", "course", "compare")
-SOURCE_PREFIXES = ("blog", "paper", "talk", "doc", "course")
+RECORD_PREFIXES = ("blog", "paper", "talk", "doc", "course", "build", "compare")
+SOURCE_PREFIXES = ("blog", "paper", "talk", "doc", "course", "build")
 DOT_KINDS = ("dot", "candidate", "archived")
 SOURCE_KINDS = ("project", *SOURCE_PREFIXES)
 DATE = re.compile(r"\d{4}-\d{2}-\d{2}")
@@ -253,7 +253,7 @@ def components(graph):
 
 KIND_LABEL = {"dot": "dot", "candidate": "候选", "archived": "归档", "project": "项目",
               "blog": "文章", "paper": "论文", "talk": "演讲", "doc": "设计文档",
-              "course": "课程", "compare": "对比", "note": "笔记", "ghost": "悬挂"}
+              "course": "课程", "build": "构建", "compare": "对比", "note": "笔记", "ghost": "悬挂"}
 FLAG_HINT = {
     "可升级": "候选已有 ≥2 个例证:用 /sc:dots 走同源判断,确认后升级",
     "半个": "缺体验面/设计面/实现面中的一面:下次分析时专门留意",

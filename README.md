@@ -6,21 +6,27 @@
 
 ## 中文
 
-一个 [Claude Code](https://claude.com/claude-code) 插件,围绕"真正学懂东西"设计:把文章和 GitHub 项目拆开再从零重建,把可迁移的思想沉淀成个人 dot 库,再把学过的东西画成一张关系图。
+一个 [Claude Code](https://claude.com/claude-code) 插件,围绕"真正学懂东西"设计:把文章和 GitHub 项目拆开再从零重建,把散在论文、仓库、权重和笔记里的想法拼成一条从基本原理到能跑代码的路径,把可迁移的思想沉淀成个人 dot 库,再把学过的东西画成一张关系图。
+
+核心信念:**理解一个东西最好的办法,是自己构建一个。**
 
 ### 命令
 
 | 命令 | 作用 | 输入 | 输出 |
 |---|---|---|---|
-| `/sc:learn` | **总入口**:判断该用哪个 skill,也能串起完整学习路线;不带参数时报告 dot 库现状 | 任意:链接、正文、仓库、主题 | 调度到下面四个 |
+| `/sc:learn` | **总入口**:判断该用哪个 skill,也能串起完整学习路线;不带参数时报告 dot 库现状 | 任意:链接、正文、仓库、主题 | 调度到下面五个 |
 | `/sc:blog` | 把一篇文章、论文、演讲或设计文档"从零重新长出来":还原问题、推理过程、心智模型,并重画原文图表;可选互动模式(先猜再看、检验题先答) | 链接、PDF、粘贴的正文或文字稿 | 排版好的 HTML 页面 |
 | `/sc:repo` | 从零重建一个仓库。**练习模式**:你写代码,Claude 备好每个组件的题面、骨架、测试和原仓库输出,给阶梯提示、做评审;**出书模式**:Claude 写成面向 Python 初学者的课程(Raschka《Build X From Scratch》方法) | 仓库地址 | `lab/` 练习目录 + 进度;或课程章节、配图 |
+| `/sc:build` | 围绕一个主题或一篇论文,把分散的论文、仓库、开放权重、笔记拼成**从基本原理到能跑代码**的里程碑路径,对账来源之间的分歧,再由你亲手构建;每一步用能拿到的最强裁判验证(对上权重的 logits、对上官方输出、对上论文数字、玩具实验) | 主题;或论文(可带权重/代码/笔记) | 路径、规格书、你的实现、复现报告 |
 | `/sc:dots` | 提炼项目里"不变的、可迁移的思想"(dot),沉淀进个人 dot 库并发现连接;**对比模式**把解决同一问题的两个项目放一起,提炼共同不变量和张力 | 一个或两个仓库;或"盘点 dot 库" | dot 库的更新 |
 | `/sc:graph` | 把 dot 库画成可交互的关系图:梳理报告、时间轴、先学路线、可能相关的建议,可导出 Mermaid / Obsidian Canvas | dot 库 | `graph.html` + 梳理报告 |
 
 ```text
 /sc:learn https://example.com/some-post          # 文章 → sc:blog
-/sc:learn https://arxiv.org/abs/xxxx.xxxxx       # 论文 → sc:blog
+/sc:learn https://arxiv.org/abs/xxxx.xxxxx       # 论文 → sc:blog(读懂)
+/sc:build 复现 https://arxiv.org/abs/xxxx.xxxxx  # 论文 → 从零复现(只有论文)
+/sc:build <论文> + hf:owner/model                # 论文 + 开放权重 → 用权重当裁判
+/sc:build 推理模型                                # 一个主题 → 推荐来源、拼成路径、自己构建
 /sc:learn https://github.com/owner/repo          # 仓库 → 问你要提炼思想、动手重建还是写成课程
 /sc:repo 我想自己写一遍 https://github.com/owner/repo  # 练习模式
 /sc:dots 对比 owner/a 和 owner/b                  # 对比模式
@@ -36,10 +42,11 @@
 ```text
 sc:blog   读懂一篇文章 ──┐ 学习记录 projects/blog-*.md
 sc:repo   从零重建仓库 ──┤ 学习记录 projects/course-*.md
+sc:build  自己构建一个 ──┤ 学习记录 projects/build-*.md
 sc:dots   提炼项目思想 ──┴──> dot 库 ~/dot-library ──> sc:graph 关系图与梳理
 ```
 
-三个学习 skill 共用一套"四层透镜"(`skills/*/references/learning-lens.md`,三份内容一致):
+四个学习 skill 共用一套"四层透镜"(`skills/*/references/learning-lens.md`,各份内容一致):
 
 | 层 | 回答 | 合格的样子 |
 |---|---|---|
@@ -49,6 +56,21 @@ sc:dots   提炼项目思想 ──┴──> dot 库 ~/dot-library ──> sc:g
 | 实现 | 关键代码在哪、守护什么? | 指得到 `path:line`,说得出删掉会坏什么 |
 
 "融会贯通"= 四层之间能**上下打通**(从思想追到代码,从代码收回思想),并和已知的东西**横向连上**(同源异形 / 张力 / 依赖 / 传承)。`sc:graph` 把横向连接画出来,让缺口一眼可见。
+
+### 从论文和分散的来源构建:`/sc:build`
+
+研究一个新方向时,想法常散在论文、代码仓库和零散的实现笔记里。`/sc:build` 先替你拼图,再让你亲手构建:
+
+1. **清点来源**:每个来源一个角色(讲原理 / 给规格 / 当裁判 / 补实现细节),记下版本和许可证;
+2. **拆成主张和规格**:主张分四级(结构 / 机制 / 消融方向 / 头条数字),复现的是主张而不是数字;规格书里专门列出**所有来源都没写的东西**;
+3. **对账分歧**:论文、代码、权重配置、笔记说法不一时,记下各自怎么说、以谁为准;
+4. **排成路径**:从基本原理到能跑的代码,每个里程碑一个新概念、一段能跑的代码、一个裁判;
+5. **亲手构建并验证**:有开放权重就用权重当裁判(先用 `weights_map.py` 读参数地图,不下载权重;对不上时逐层找第一个偏差);只有论文就在玩具规模上检验机制和消融方向,多种子;
+6. **复现报告**:每条主张写明复现 / 部分复现 / 未复现 / 无法在此规模检验。
+
+```bash
+uv run python skills/build/scripts/weights_map.py hf:owner/model --expect 1.5e9   # 参数地图,只读文件头
+```
 
 ### 关系图
 
@@ -118,7 +140,7 @@ done
 .claude-plugin/        # plugin.json 与 marketplace.json
 skills/
 ├── learn/             # 调度器
-├── blog/  repo/  dots/  graph/
+├── blog/  repo/  dots/  build/  graph/
 │   ├── SKILL.md       # 入口:触发条件与工作流
 │   ├── references/    # 按需读取的方法论
 │   ├── scripts/       # 辅助脚本(含 tests/)
@@ -134,6 +156,7 @@ scripts/check_sync.py  # 检查共用文件(learning-lens.md)是否同步
   ```bash
   (cd skills/repo/scripts && uv run --with pytest -m pytest tests)
   (cd skills/graph/scripts && uv run --with pytest -m pytest tests)
+  (cd skills/build/scripts && uv run --with pytest -m pytest tests)
   python3 scripts/check_sync.py
   ```
 
@@ -141,7 +164,9 @@ scripts/check_sync.py  # 检查共用文件(learning-lens.md)是否同步
 
 ## English
 
-A [Claude Code](https://claude.com/claude-code) plugin built around *actually understanding things*: take a blog post or a GitHub project apart and rebuild it from scratch, distill the transferable ideas into a personal "dot" library, and see how everything you've learned connects.
+A [Claude Code](https://claude.com/claude-code) plugin built around *actually understanding things*: take a blog post or a GitHub project apart and rebuild it from scratch, distill the transferable ideas into a personal "dot" library, and see how everything you've learned connects, including stitching ideas scattered across papers, repos, open weights and notes into one path from first principles to working code.
+
+The core belief: **the best way to understand something is to build one yourself.**
 
 > The skill prompts are written mostly in Chinese; the skills respond in the language you use.
 
@@ -149,14 +174,18 @@ A [Claude Code](https://claude.com/claude-code) plugin built around *actually un
 
 | Command | What it does | Input | Output |
 |---|---|---|---|
-| `/sc:learn` | **Entry point**: picks the right skill, can chain a full learning route; with no argument, reports on your dot library | Anything: URL, text, repo, topic | Dispatches to the four below |
+| `/sc:learn` | **Entry point**: picks the right skill, can chain a full learning route; with no argument, reports on your dot library | Anything: URL, text, repo, topic | Dispatches to the five below |
 | `/sc:blog` | Regrows an article, paper, talk or design doc from sc: the problem, the reasoning chain, the mental model, figures redrawn; optional interactive mode (guess first, answer the check questions first) | URL, PDF, pasted text or transcript | A typeset HTML page |
 | `/sc:repo` | Rebuild a repo from scratch. **Practice mode**: you write the code while Claude prepares per-component labs (brief, stubs, tests, oracle outputs), gives tiered hints and reviews. **Book mode**: Claude writes a course for readers who only know basic Python | Repo URL | `lab/` + progress, or chapters and figures |
+| `/sc:build` | Build a topic or reproduce a paper from first principles: stitches scattered papers, repos, open weights and notes into one milestone path to working code, reconciles where they disagree, and has you build it, checked against the strongest available oracle (matching open-weight logits, official outputs, the paper's numbers, toy experiments) | A topic, or a paper (plus weights / code / notes) | Path, spec, your implementation, reproduction report |
 | `/sc:dots` | Extracts invariant, transferable ideas ("dots") into your dot library; **compare mode** puts two projects that solve the same problem side by side to find shared invariants and tensions | One or two repos, or "review my dot library" | Updates to the library |
 | `/sc:graph` | Interactive graph of the dot library with a tidy-up report, timeline, prerequisite paths, suggested links, and Mermaid / Obsidian Canvas export | Dot library | `graph.html` + report |
 
 ```text
 /sc:learn https://example.com/some-post            # article -> sc:blog
+/sc:build reproduce https://arxiv.org/abs/xxxx.xxxxx   # paper only -> reproduce the claims
+/sc:build <paper> + hf:owner/model                  # paper + open weights -> weights are the oracle
+/sc:build reasoning models                          # a topic -> sources, path, build it yourself
 /sc:learn https://github.com/owner/repo            # repo -> asks: distill, practice rebuild, or write a course
 /sc:repo practice https://github.com/owner/repo    # practice mode: you write the code
 /sc:dots compare owner/a and owner/b               # compare mode
@@ -173,7 +202,7 @@ sc:repo   rebuild a repo          ──┤ record projects/course-*.md
 sc:dots   distill a project       ──┴──> dot library ~/dot-library ──> sc:graph
 ```
 
-The three learning skills share a four-layer lens (`skills/*/references/learning-lens.md`, three identical copies): **idea** (what the author bet on), **mental model** (a model that predicts), **architecture** (parts, boundaries, design-decision cards), **implementation** (`path:line` and what it protects). Real understanding means moving vertically between the layers and connecting horizontally to what you already know (same mechanism / tension / dependency / lineage). `sc:graph` makes those horizontal connections visible.
+The four learning skills share a four-layer lens (`skills/*/references/learning-lens.md`, identical copies): **idea** (what the author bet on), **mental model** (a model that predicts), **architecture** (parts, boundaries, design-decision cards), **implementation** (`path:line` and what it protects). Real understanding means moving vertically between the layers and connecting horizontally to what you already know (same mechanism / tension / dependency / lineage). `sc:graph` makes those horizontal connections visible.
 
 ### The graph
 
